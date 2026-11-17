@@ -1,0 +1,22 @@
+{
+  "version": "v2026.11.18.4",
+  "target": "lax-reset",
+  "status": "published",
+  "sha": "a41688c29b719975600f6d79430f66decf97faf5",
+  "short_sha": "a41688c2",
+  "command": [
+    "./scripts/reset_lax.sh"
+  ],
+  "exit_code": 0,
+  "started_at": "2026-11-18T01:27:23+08:00",
+  "finished_at": "2026-11-18T01:27:30+08:00",
+  "operator": {
+    "user": "jason",
+    "host": "Jason.local",
+    "pid": 80969,
+    "agent_session": null,
+    "cwd": "/Users/jason/dev/minitv"
+  },
+  "note": "恢复出厂：清空全部数据，admin 重新生成密码",
+  "dirty": false
+}
