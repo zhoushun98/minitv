@@ -1,0 +1,24 @@
+{
+  "version": "v2026.11.17.2",
+  "target": "lax-env",
+  "status": "published",
+  "sha": "2b05b3a9d4f832a14988326286e2e09b7cff1356",
+  "short_sha": "2b05b3a9",
+  "command": [
+    "./scripts/lax_env.sh",
+    "RESEND_API_KEY",
+    "RESEND_FROM"
+  ],
+  "exit_code": 0,
+  "started_at": "2026-11-17T23:27:11+08:00",
+  "finished_at": "2026-11-17T23:27:16+08:00",
+  "operator": {
+    "user": "jason",
+    "host": "Jason.local",
+    "pid": 33407,
+    "agent_session": null,
+    "cwd": "/Users/jason/dev/minitv"
+  },
+  "note": "配置 Resend（发件人 noreply@sanaoman.asia）",
+  "dirty": false
+}
