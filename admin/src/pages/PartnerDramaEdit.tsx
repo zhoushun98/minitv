@@ -32,6 +32,7 @@ import { api, errorText } from "../api";
 import { useLoad, formatTime } from "../hooks";
 import {
   MAX_UPLOAD_BYTES,
+  MAX_UPLOAD_LABEL,
   type UploadSession,
   directUpload,
   formatDuration,
@@ -350,7 +351,7 @@ export default function PartnerDramaEdit() {
     const episodeId = uploadTarget.current;
     if (!file || !episodeId || !drama) return;
     if (file.size > MAX_UPLOAD_BYTES) {
-      message.error("单个视频不能超过 200MB");
+      message.error(`单个视频不能超过 ${MAX_UPLOAD_LABEL}`);
       return;
     }
     setUploadingId(episodeId);

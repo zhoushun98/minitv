@@ -492,6 +492,9 @@ def _remote_upload_stalled(remote: dict) -> bool:
         # 本机模式：原片已落盘，排队由 media worker 负责；剧多时排队超过一小时是正常的。
         return False
     uploaded = remote.get("dateUploaded")
+    if remote.get("local") and remote.get("lastActivity"):
+        # 本机模式：还在收字节的上传不算停滞，从最后一次收到字节开始计时。
+        uploaded = remote["lastActivity"]
     if not uploaded:
         return False
     try:

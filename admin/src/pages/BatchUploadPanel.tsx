@@ -23,7 +23,7 @@ import type { TableColumnsType, UploadProps } from "antd";
 import { CloudUploadOutlined, CloseOutlined } from "@ant-design/icons";
 import { MAX_CONCURRENT_UPLOADS, batchQueue, canEdit, useBatchQueue } from "./batchUpload";
 import type { BatchItem, TitleRule } from "./batchUpload";
-import { formatDuration, formatFileSize } from "./episodeUpload";
+import { MAX_UPLOAD_LABEL, formatDuration, formatFileSize } from "./episodeUpload";
 
 const RULE_OPTIONS = [
   { value: "episode-en", label: "Episode {n}" },
@@ -335,7 +335,7 @@ export function BatchUploadModal({
         <div className="ep-drop-inner">
           <CloudUploadOutlined className="ep-drop-icon" />
           <div className="ep-drop-title">拖入视频，或点击选择 — 上传中也能继续追加</div>
-          <div className="ep-drop-hint">支持一次多选 · MP4 / MOV · 单个 ≤ 200MB</div>
+          <div className="ep-drop-hint">支持一次多选 · MP4 / MOV · 单个 ≤ {MAX_UPLOAD_LABEL}</div>
         </div>
       </Upload.Dragger>
 

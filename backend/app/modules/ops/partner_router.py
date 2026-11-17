@@ -877,8 +877,9 @@ def upload_status(
         .order_by(MediaUpload.id.desc())
     ).first()
     # A session that never received bytes would otherwise sit in "transcoding"
-    # forever (the supplier sees 转码中 and cannot retry). 30 minutes is beyond
-    # a realistic 200MB upload on a slow link, so it is safe to call it dead.
+    # forever (the supplier sees 转码中 and cannot retry). After 30 minutes a
+    # session with no bytes at all is dead; one that is still receiving bytes
+    # (large files on slow links) is left alone.
     if (
         episode.status == "transcoding"
         and upload is not None
@@ -899,6 +900,8 @@ def upload_status(
                     # only appear after the last byte.
                     has_bytes = bool(
                         remote.get("hasOriginal")
+                        # 本机模式：传输中的字节数（Bunny 用 hasOriginal 表达同一件事）
+                        or int(remote.get("uploadedBytes") or 0) > 0
                         or int(remote.get("storageSize") or 0) > 0
                         or int(remote.get("length") or 0) > 0
                         or int(remote.get("status") or 0) >= 3

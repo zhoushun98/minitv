@@ -31,6 +31,7 @@ import { api, errorText } from "../api";
 import { useCanWriteContent } from "../me";
 import {
   MAX_UPLOAD_BYTES,
+  MAX_UPLOAD_LABEL,
   directUpload,
   formatDuration,
   formatFileSize,
@@ -114,7 +115,7 @@ function useVideoPick(): VideoPick {
       setFileList([]);
       setFile(null);
       setProbing(false);
-      setError(`文件 ${formatFileSize(picked.size)}，超过 200MB 上限`);
+      setError(`文件 ${formatFileSize(picked.size)}，超过 ${MAX_UPLOAD_LABEL} 上限`);
       return;
     }
     probeSeq.current += 1;
@@ -550,8 +551,8 @@ function EpisodeEditorModal({
           title={hasVideo ? "把新视频拖到这里，或点击选择" : "把视频拖到这里，或点击选择"}
           hint={
             hasVideo
-              ? "MP4、MOV · 不超过 200MB。保存后会重新转码，完成前不能播放"
-              : "MP4、MOV · 横版或竖版 · 不超过 200MB · 直传 Bunny"
+              ? `MP4、MOV · 不超过 ${MAX_UPLOAD_LABEL}。保存后会重新转码，完成前不能播放`
+              : `MP4、MOV · 横版或竖版 · 不超过 ${MAX_UPLOAD_LABEL} · 直传 Bunny`
           }
         />
       )}

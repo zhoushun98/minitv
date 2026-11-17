@@ -18,7 +18,9 @@ export type UploadSession = {
   status: string;
 };
 
-export const MAX_UPLOAD_BYTES = 200 * 1024 * 1024;
+// 单个视频上限，和后端 upload_service.MAX_BYTES 保持一致。
+export const MAX_UPLOAD_BYTES = 2 * 1024 * 1024 * 1024;
+export const MAX_UPLOAD_LABEL = "2GB";
 
 export const formatDuration = (seconds?: number) => {
   if (!seconds) return "-";

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import base64
 import hashlib
+import os
 import shutil
 import subprocess
 from datetime import datetime, timedelta, timezone
@@ -127,6 +128,43 @@ def test_local_queue_never_counts_as_stalled():
     assert _remote_upload_stalled({"local": True, "status": 1, "dateUploaded": old}) is False
     # 建了会话但字节一直没到：和 Bunny 一样判为停滞，分集才能重新上传。
     assert _remote_upload_stalled({"local": True, "status": 0, "dateUploaded": old}) is True
+
+
+def test_long_upload_is_stalled_only_after_bytes_stop(media_root):
+    video_id = bunny.create_stream_video("big.mp4")
+    local_media.update_meta(video_id, dateUploaded=(datetime.now(timezone.utc) - timedelta(hours=3)).isoformat())
+    local_media.begin_upload(video_id, 10_000)
+    with local_media.part_path(video_id).open("ab") as fh:
+        fh.write(b"x" * 4096)
+
+    # 会话 3 小时前创建，但刚刚还在收字节：大文件慢链路，不能判为停滞。
+    live = bunny.stream_video(video_id)
+    assert live["uploadedBytes"] == 4096 and not live["hasOriginal"] and live["storageSize"] == 0
+    assert _remote_upload_stalled(live) is False
+    assert _remote_upload_stalled(local_media.list_videos()[video_id]) is False
+
+    # 超过一小时没再收到字节：断掉的上传，判为停滞，分集才能重新上传。
+    stale = (datetime.now(timezone.utc) - timedelta(hours=2)).timestamp()
+    os.utime(local_media.part_path(video_id), (stale, stale))
+    assert _remote_upload_stalled(bunny.stream_video(video_id)) is True
+    # 实时进度只出现在返回值里，不写回 meta.json。
+    assert "uploadedBytes" not in local_media.read_meta(video_id)
+
+
+def test_upload_limit_is_2gb(media_root, client, make):
+    headers = _login(client, make.admin(role="ops").username)
+    episode = make.episode(make.drama(), 1)
+
+    def open_session(size):
+        return client.post(
+            f"/admin/v1/episodes/{episode.id}/upload-session",
+            json={"filename": "ep1.mp4", "mime": "video/mp4", "size_bytes": size, "width": 1080, "height": 1920},
+            headers=headers,
+        )
+
+    too_big = open_session(2 * 1024**3 + 1)
+    assert too_big.status_code == 422 and "2GB" in too_big.text
+    assert open_session(1500 * 1024**2).status_code == 200
 
 
 # ---------------------------------------------------------------------------

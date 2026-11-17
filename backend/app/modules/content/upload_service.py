@@ -15,7 +15,8 @@ from app.modules.common.models import AuditLog
 from app.modules.content.models import Episode, MediaUpload
 from app.modules.content.service import InvalidTransition, transition_episode
 
-MAX_BYTES = 200 * 1024 * 1024
+# 单个视频上限。改动时同步 admin/src/pages/episodeUpload.ts 的 MAX_UPLOAD_BYTES 和 cli/minitv 的 MAX_UPLOAD_BYTES。
+MAX_BYTES = 2 * 1024**3
 ALLOWED_MIME = {"video/mp4", "video/quicktime"}
 
 
@@ -53,7 +54,7 @@ def create_upload_session(
     if mime not in ALLOWED_MIME:
         raise UploadRejected("only MP4 or MOV is accepted")
     if size_bytes > MAX_BYTES:
-        raise UploadRejected("file exceeds 200MB")
+        raise UploadRejected(f"file exceeds {MAX_BYTES // 1024**3}GB")
     # Orientation is deliberately unconstrained: operations uploads both
     # vertical and landscape episodes. Only dimensions that cannot describe a
     # real frame are rejected; the ratio is never used as a gate.

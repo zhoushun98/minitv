@@ -18,6 +18,7 @@ from app.modules.billing.service import ensure_default_plans, sign_webhook
 from app.modules.common.models import AuditLog
 from app.modules.content.models import Episode, MediaUpload
 from app.modules.content.publish_service import GROUP_LIMIT
+from app.modules.content.upload_service import MAX_BYTES
 from app.modules.content.upload_service import sign_callback
 from app.modules.playback.service import image_secret, sign_path, verify_token, video_secret
 from app.modules.wallet.models import CoinLedgerEntry, WalletAccount
@@ -85,7 +86,7 @@ def test_upload_rejects_oversize_and_wrong_mime(make, client):
     episode = make.episode(drama, number=1)
     too_big = client.post(
         f"/admin/v1/episodes/{episode.id}/upload-session",
-        json={"filename": "a.mp4", "mime": "video/mp4", "size_bytes": 201 * 1024 * 1024, "width": 720, "height": 1280},
+        json={"filename": "a.mp4", "mime": "video/mp4", "size_bytes": MAX_BYTES + 1, "width": 720, "height": 1280},
         headers=headers,
     )
     assert too_big.status_code == 422

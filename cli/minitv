@@ -30,6 +30,8 @@ VERSION = "0.4.0"
 DEFAULT_BASE = "https://api.sanaoman.asia"
 # Cloudflare blocks urllib's default UA, so every request carries this one.
 UA = f"minitv/{VERSION} (+https://sanaoman.asia)"
+# 单个视频上限，和后端 upload_service.MAX_BYTES 保持一致。
+MAX_UPLOAD_BYTES = 2 * 1024**3
 
 EXIT_OK = 0
 EXIT_ERROR = 1
@@ -1040,7 +1042,7 @@ def _build_spec():
                     "上传一集的视频（TUS 直传，不过 API）",
                     "minitv episode upload <id> <file>",
                     cmd_episode_upload,
-                    args=[pos("id", "分集 id"), pos("file", "本地 .mp4 / .mov，≤200MB"),
+                    args=[pos("id", "分集 id"), pos("file", "本地 .mp4 / .mov，≤2GB"),
                           arg(["--resume"], "从已上传的字节续传（签名过期后仍可用）", kind="bool")],
                     examples=["minitv episode upload 552 ./S01E01.mp4",
                               "minitv episode upload 552 ./S01E01.mp4 --json"],
@@ -1428,7 +1430,7 @@ def _build_spec():
                     cmd_partner_episode_upload,
                     args=[
                         pos("id", "分集 id"),
-                        pos("file", "本地视频文件（≤200MB，MP4/MOV）"),
+                        pos("file", "本地视频文件（≤2GB，MP4/MOV）"),
                         arg(["--resume"], "从断点续传", kind="bool"),
                     ],
                     examples=["minitv partner episode-upload 9001 ./ep1.mp4 --resume"],
@@ -1690,8 +1692,8 @@ def _mime_for(path: Path) -> str:
 
 def _upload_one(args, client, episode_id, path: Path, base: str = "/admin/v1", sync: bool = True):
     size = path.stat().st_size
-    if size > 200 * 1024 * 1024:
-        raise usage_error(f"{path.name} 超过 200MB")
+    if size > MAX_UPLOAD_BYTES:
+        raise usage_error(f"{path.name} 超过 2GB")
     if getattr(args, "dry_run", False):
         print(f"将上传 {path.name}（{size} 字节）→ 分集 {episode_id}")
         return {"status": "dry-run"}

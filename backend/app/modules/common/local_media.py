@@ -190,11 +190,31 @@ def create_video(title: str) -> str:
     return video_id
 
 
+def _with_upload_progress(video_id: str, meta: dict) -> dict:
+    """上传中的视频附上实时进度（不落盘）。
+
+    ``uploadedBytes``：已收到的字节数；``lastActivity``：最后一次收到字节的时间。
+    大文件在慢链路上可能传一个多小时，卡死判定要看「多久没收到字节」，不能只看会话
+    创建了多久。``storageSize`` / ``hasOriginal`` 仍然只在传完后才有值，语义和 Bunny 一致。
+    """
+    if int(meta.get("status") or 0) != STATUS_CREATED:
+        return meta
+    try:
+        st = part_path(video_id).stat()
+    except OSError:
+        return meta
+    return {
+        **meta,
+        "uploadedBytes": st.st_size,
+        "lastActivity": datetime.fromtimestamp(st.st_mtime, timezone.utc).isoformat(),
+    }
+
+
 def get_video(video_id: str) -> dict:
     meta = read_meta(check_id(video_id))
     if meta is None:
         raise BunnyError(f"get video failed (404: {video_id})")
-    return meta
+    return _with_upload_progress(video_id, meta)
 
 
 def list_videos() -> dict[str, dict]:
@@ -207,7 +227,7 @@ def list_videos() -> dict[str, dict]:
             continue
         meta = read_meta(entry.name)
         if meta is not None:
-            out[entry.name] = meta
+            out[entry.name] = _with_upload_progress(entry.name, meta)
     return out
 
 

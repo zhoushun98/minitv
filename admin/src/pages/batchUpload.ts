@@ -15,7 +15,7 @@
 import { useSyncExternalStore } from "react";
 import { message } from "antd";
 import { api, errorText } from "../api";
-import { MAX_UPLOAD_BYTES, directUpload, probeVideo, waitForTranscode } from "./episodeUpload";
+import { MAX_UPLOAD_BYTES, MAX_UPLOAD_LABEL, directUpload, probeVideo, waitForTranscode } from "./episodeUpload";
 import type { UploadSession, VideoMeta } from "./episodeUpload";
 
 export const MAX_CONCURRENT_UPLOADS = 2;
@@ -301,7 +301,7 @@ function addFiles(opts: { dramaId: string; files: File[]; startNumber: number; r
       continue;
     }
     if (file.size > MAX_UPLOAD_BYTES) {
-      rejected.push(`${file.name}（超过 200MB）`);
+      rejected.push(`${file.name}（超过 ${MAX_UPLOAD_LABEL}）`);
       continue;
     }
     const key = `${file.name}:${file.size}`;

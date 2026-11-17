@@ -44,7 +44,7 @@ python3 scripts/release.py status
 
 视频不经过任何第三方，整条链路都在 lax 上：
 
-1. **上传**：后台、合作方后台、CLI 用 TUS 直传到 `https://api.sanaoman.asia/v1/media/tus`。协议和授权头与 Bunny 相同，所以客户端不用改；支持断点续传，单个文件上限 4 GiB。
+1. **上传**：后台、合作方后台、CLI 用 TUS 直传到 `https://api.sanaoman.asia/v1/media/tus`。协议和授权头与 Bunny 相同，所以客户端不用改；支持断点续传。单个视频上限 2GB，由后端 `upload_service.MAX_BYTES` 决定（后台和 CLI 有同值常量，要一起改）；接收端的硬上限是 4 GiB。上传超过一小时没再收到字节才会被判为卡死，慢链路传大文件不会被误杀。
 2. **转码**：systemd 服务 `minitv-media`（`backend/app/media_worker.py`）一次转一集，按 `MEDIA_RENDITIONS`（默认 360p、720p，不放大）转成 HLS，以低优先级运行。转完立即把分集从「转码中」推进到「审核中」，并删除原片。
 3. **播放**：API 签发 `https://media.sanaoman.asia/v/{token}/{expires}/{id}/playlist.m3u8`，5 分钟有效，由 Nginx `secure_link` 校验：伪造返回 403，过期返回 410。分片用相对路径，继承同一个 token。
 4. **封面和字幕**：存在 `/srv/minitv-media/files/`，通过 `https://media.sanaoman.asia/f/...` 公开访问。
