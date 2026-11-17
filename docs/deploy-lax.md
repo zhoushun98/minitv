@@ -97,3 +97,12 @@ ssh lax systemctl status minitv-api minitv-media nginx postgresql redis-server
 ssh lax journalctl -u minitv-api -n 100 --no-pager
 ssh lax certbot certificates          # 证书有效期；certbot.timer 负责自动续期
 ```
+
+### 清空全部数据（恢复成空站）
+
+不可撤销。会删除数据库、全部视频和封面、Redis 数据，然后重新创建 admin 并打印一次新密码；密钥、证书、站点和 APK 保持不变。
+
+```bash
+MINITV_RESET_CONFIRM=sanaoman.asia python3 scripts/release.py run --target lax-reset \
+  --note "清空全部数据" -- ./scripts/reset_lax.sh
+```
