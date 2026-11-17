@@ -50,7 +50,9 @@ APK="$ROOT/app/build/app/outputs/flutter-apk/app-release.apk"
 [[ -f "$APK" ]] || { echo "找不到构建产物 $APK" >&2; exit 1; }
 
 # AOT 快照里能直接搜到字符串常量：确认 API 地址打进去了。
-if ! unzip -p "$APK" lib/arm64-v8a/libapp.so | LC_ALL=C grep -aq "api\.$DOMAIN"; then
+# 用 grep -c 读完整个流；grep -q 会提前退出，让 unzip 收到 SIGPIPE，在 pipefail 下被误判为失败。
+hits=$(unzip -p "$APK" lib/arm64-v8a/libapp.so | LC_ALL=C grep -ac "api\.$DOMAIN" || true)
+if [[ ${hits:-0} -eq 0 ]]; then
   echo "APK 自检失败：libapp.so 里找不到 api.$DOMAIN" >&2
   exit 1
 fi
