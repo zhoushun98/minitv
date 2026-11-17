@@ -106,7 +106,7 @@ def create_upload_session(
     if bunny.live():
         # Real TUS: create the session with POST + these headers, then PATCH the
         # Location returned by Bunny. The same four headers go on every request.
-        upload_url = bunny.STREAM_TUS_ENDPOINT
+        upload_url = bunny.tus_endpoint()
         headers = bunny.tus_headers(video_id)
     else:
         # Fake mode: the admin console PATCHes the bytes to the local dev

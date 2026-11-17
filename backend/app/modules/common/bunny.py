@@ -7,6 +7,9 @@ Two modes, selected by the ``BUNNY_MODE`` environment variable:
   ``PLAYBACK_CDN_BASE`` (default ``https://cdn.local``). Tests always run in
   this mode (pinned in conftest), so nothing here touches the network.
 - ``real``: calls the Bunny APIs with the credentials below.
+- ``local``: self-hosted on this server (disk + ffmpeg HLS + Nginx). Every
+  gateway below delegates to ``local_media`` and returns Bunny-shaped data, so
+  callers only need ``live()``. See ``local_media`` for layout and config.
 
 Real mode environment (see ``.env`` locally, ``.env.example`` for the template):
 
@@ -56,8 +59,27 @@ def mode() -> str:
 
 
 def live() -> bool:
-    """True when the gateways below should talk to the real Bunny APIs."""
-    return mode() == "real"
+    """True when the gateways below serve real media (Bunny APIs or self-hosted)."""
+    return mode() in ("real", "local")
+
+
+def local() -> bool:
+    """True when media is self-hosted on this server (``BUNNY_MODE=local``)."""
+    return mode() == "local"
+
+
+def _local():
+    # 延迟导入：local_media 依赖本模块的 BunnyError。
+    from app.modules.common import local_media
+
+    return local_media
+
+
+def tus_endpoint() -> str:
+    """Where clients POST to open a TUS upload session."""
+    if local():
+        return _local().tus_endpoint()
+    return STREAM_TUS_ENDPOINT
 
 
 def _require(name: str) -> str:
@@ -100,6 +122,8 @@ def create_stream_video(title: str, *, attempts: int = 3) -> str:
     exponential backoff: bulk upload-session creation can otherwise trip the
     library API rate limit and surface as upstream 502s.
     """
+    if local():
+        return _local().create_video(title)
     payload = json.dumps({"title": title or "untitled"}).encode()
     last_error = ""
     for attempt in range(attempts):
@@ -129,6 +153,8 @@ def stream_upload(video_id: str, file_path: str | os.PathLike[str], *, timeout: 
     deliberately left to the caller: a dropped connection restarts the whole
     upload, so the import script records the GUID only after this call returns.
     """
+    if local():
+        return _local().import_file(video_id, file_path)
     data = Path(file_path).read_bytes()
     status, _, body = _http(
         "PUT",
@@ -152,6 +178,8 @@ def list_stream_videos(*, page_size: int = 1000, attempts: int = 3) -> dict[str,
     episodes should use this instead of one ``GET`` per video: the library API
     rate-limits single-object reads long before it rate-limits a listing.
     """
+    if local():
+        return _local().list_videos()
     library_id = _require("BUNNY_STREAM_LIBRARY_ID")
     found: dict[str, dict] = {}
     page = 1
@@ -186,6 +214,8 @@ def list_stream_videos(*, page_size: int = 1000, attempts: int = 3) -> dict[str,
 
 def stream_video(video_id: str, *, attempts: int = 3) -> dict:
     """Return the Bunny Stream video object, retrying transient failures."""
+    if local():
+        return _local().get_video(video_id)
     last_error = ""
     for attempt in range(attempts):
         status, _, body = _http(
@@ -205,6 +235,8 @@ def stream_video(video_id: str, *, attempts: int = 3) -> dict:
 
 def delete_stream_video(video_id: str) -> None:
     """Best-effort cleanup for a video object whose upload never completed."""
+    if local():
+        return _local().delete_video(video_id)
     status, _, body = _http(
         "DELETE",
         f"{STREAM_API}/library/{_require('BUNNY_STREAM_LIBRARY_ID')}/videos/{video_id}",
@@ -220,6 +252,8 @@ def tus_headers(video_id: str, *, ttl: int = 3600) -> dict[str, str]:
     Bunny expects the same four headers on the create (POST) *and* on every
     PATCH of the upload session.
     """
+    if local():
+        return _local().tus_headers(video_id, ttl=ttl)
     library_id = _require("BUNNY_STREAM_LIBRARY_ID")
     api_key = _require("BUNNY_STREAM_API_KEY")
     expire = int(time.time()) + ttl
@@ -233,6 +267,8 @@ def tus_headers(video_id: str, *, ttl: int = 3600) -> dict[str, str]:
 
 
 def stream_cdn_host() -> str:
+    if local():
+        return _local().cdn_host()
     return _require("BUNNY_STREAM_CDN_HOST")
 
 
@@ -273,6 +309,8 @@ def sign_stream_playback(video_id: str, *, ttl: int = DEFAULT_TTL_SECONDS) -> di
     URL shape follows the official signer:
     ``/bcdn_token=<token>&token_path=<enc>&expires=<ts>/{video_id}/playlist.m3u8``
     """
+    if local():
+        return _local().sign_playback(video_id, ttl=ttl)
     token_path = f"/{video_id}/"
     signed = sign_directory(_require("BUNNY_STREAM_TOKEN_KEY"), token_path, ttl=ttl)
     encoded = urllib.parse.quote(token_path, safe="")
@@ -293,6 +331,8 @@ def stream_embed_url(video_id: str, *, ttl: int = 3600) -> dict:
     * ``url``       - standalone player page (new-tab fallback)
     * ``embed_url`` - iframe embed used by the admin preview modal
     """
+    if local():
+        return _local().embed_url(video_id, ttl=ttl)
     library_id = _require("BUNNY_STREAM_LIBRARY_ID")
     key = _require("BUNNY_STREAM_TOKEN_KEY")
     expires = int(time.time()) + ttl
@@ -312,6 +352,8 @@ def sign_image_url(remote_path: str, *, ttl: int = DEFAULT_TTL_SECONDS) -> dict:
     ``remote_path`` is a path inside the Storage Zone, e.g. ``subs/12/en.vtt``.
     Uses the query-string form of the token (single-file access).
     """
+    if local():
+        return _local().sign_file_url(remote_path, ttl=ttl)
     path = "/" + remote_path.lstrip("/")
     token_path = path.rsplit("/", 1)[0] + "/"
     signed = sign_directory(_require("BUNNY_IMAGE_TOKEN_KEY"), token_path, ttl=ttl)
@@ -327,6 +369,8 @@ def sign_image_url(remote_path: str, *, ttl: int = DEFAULT_TTL_SECONDS) -> dict:
 
 def storage_upload(remote_path: str, data: bytes, content_type: str = "application/octet-stream") -> None:
     """Upload bytes to the Storage Zone (primary region endpoint)."""
+    if local():
+        return _local().storage_upload(remote_path, data)
     zone = _require("BUNNY_STORAGE_ZONE")
     host = _require("BUNNY_STORAGE_HOST")
     status, _, body = _http(
@@ -342,6 +386,8 @@ def storage_upload(remote_path: str, data: bytes, content_type: str = "applicati
 
 def storage_delete(remote_path: str) -> None:
     """Delete one Storage Zone object. A missing object is not an error."""
+    if local():
+        return _local().storage_delete(remote_path)
     zone = _require("BUNNY_STORAGE_ZONE")
     host = _require("BUNNY_STORAGE_HOST")
     status, _, body = _http(
@@ -355,11 +401,15 @@ def storage_delete(remote_path: str) -> None:
 
 
 def image_cdn_host() -> str:
+    if local():
+        return _local().cdn_host()
     return _require("BUNNY_IMAGE_CDN_HOST")
 
 
 def image_url(remote_path: str) -> str:
     """Plain (unsigned) image CDN URL for a storage object."""
+    if local():
+        return _local().file_url(remote_path)
     return f"https://{image_cdn_host()}/{remote_path.lstrip('/')}"
 
 
@@ -370,6 +420,8 @@ def image_url(remote_path: str) -> str:
 
 def purge_url(url: str) -> None:
     """Purge one URL (wildcards allowed) from the Bunny edge cache."""
+    if local():
+        return None  # 本机没有边缘缓存，无需清理
     status, _, body = _http(
         "POST",
         f"{ACCOUNT_API}/purge?url={urllib.parse.quote(url, safe='')}&async=true",

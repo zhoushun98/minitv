@@ -10,10 +10,11 @@
 #   www.DOMAIN     301 → DOMAIN
 #   h5.DOMAIN      H5          → $WEB_ROOT/h5
 #   admin.DOMAIN   管理后台    → $WEB_ROOT/admin-root/admin（vite base 为 /admin/）
-#   api.DOMAIN     FastAPI     → 127.0.0.1:$API_PORT
+#   api.DOMAIN     FastAPI     → 127.0.0.1:$API_PORT（/v1/media/tus 是视频直传入口）
+#   media.DOMAIN   视频与封面  → $MEDIA_ROOT（BUNNY_MODE=local：ffmpeg 转码，secure_link 防盗链）
 #
 # 生产密钥只在服务器上生成，保存在 $REMOTE_DIR/.env，本机的 .env 永远不会被复制上去。
-# 以后要补 Bunny / Resend / Stripe 等密钥：编辑服务器上的 .env，再 systemctl restart minitv-api。
+# 以后要补 Resend / Stripe 等密钥用 scripts/lax_env.sh（见 docs/deploy-lax.md）。
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -22,10 +23,11 @@ DOMAIN="${MINITV_DOMAIN:-sanaoman.asia}"
 REMOTE_DIR="${MINITV_REMOTE_DIR:-/opt/minitv}"
 WEB_ROOT="${MINITV_WEB_ROOT:-/var/www/minitv}"
 API_PORT="${MINITV_API_PORT:-18110}"
+MEDIA_ROOT="${MINITV_MEDIA_ROOT:-/srv/minitv-media}"
 
 SSH_OPTS=(-o BatchMode=yes -o ConnectTimeout=8 -o ServerAliveInterval=15 -o ServerAliveCountMax=3)
 RSYNC_SSH="ssh -o BatchMode=yes -o ConnectTimeout=8 -o ServerAliveInterval=15 -o ServerAliveCountMax=3"
-REMOTE_ENV="DOMAIN='$DOMAIN' REMOTE_DIR='$REMOTE_DIR' WEB_ROOT='$WEB_ROOT' API_PORT='$API_PORT'"
+REMOTE_ENV="DOMAIN='$DOMAIN' REMOTE_DIR='$REMOTE_DIR' WEB_ROOT='$WEB_ROOT' API_PORT='$API_PORT' MEDIA_ROOT='$MEDIA_ROOT'"
 
 remote() { ssh "${SSH_OPTS[@]}" "$HOST" "$@"; }
 
@@ -61,7 +63,7 @@ remote "$REMOTE_ENV bash -s" << 'REMOTE'
 set -euo pipefail
 export DEBIAN_FRONTEND=noninteractive
 need=()
-for pkg in nginx postgresql redis-server python3-venv rsync certbot curl openssl; do
+for pkg in nginx postgresql redis-server python3-venv rsync certbot curl openssl ffmpeg; do
   dpkg -s "$pkg" > /dev/null 2>&1 || need+=("$pkg")
 done
 if ((${#need[@]})); then
@@ -69,7 +71,10 @@ if ((${#need[@]})); then
   apt-get install -y -qq "${need[@]}"
 fi
 install -d -m 755 "$REMOTE_DIR" "$WEB_ROOT/web/download" "$WEB_ROOT/web/cli" "$WEB_ROOT/h5" \
-  "$WEB_ROOT/admin-root/admin" /var/www/letsencrypt
+  "$WEB_ROOT/admin-root/admin" /var/www/letsencrypt \
+  "$MEDIA_ROOT" "$MEDIA_ROOT/hls" "$MEDIA_ROOT/files" "$MEDIA_ROOT/player"
+# 原片和视频对象元数据只给 API / worker（root）读，Nginx 不暴露这个目录。
+install -d -m 700 "$MEDIA_ROOT/videos"
 REMOTE
 
 # ---------------------------------------------------------------- 3. 同步代码与静态产物
@@ -87,12 +92,15 @@ rsync -az --delete -e "$RSYNC_SSH" --exclude 'download/' --exclude 'cli/' "$ROOT
 rsync -az -e "$RSYNC_SSH" "$ROOT/cli/install.sh" "$ROOT/cli/minitv" "$HOST:$WEB_ROOT/web/cli/"
 rsync -az --delete -e "$RSYNC_SSH" "$ROOT/h5/dist/" "$HOST:$WEB_ROOT/h5/"
 rsync -az --delete -e "$RSYNC_SSH" "$ROOT/admin/dist/" "$HOST:$WEB_ROOT/admin-root/admin/"
+# 后台「预览」播放页 + hls.js（和官网构建用的是同一个版本）。
+rsync -az -e "$RSYNC_SSH" "$ROOT/backend/app/modules/media/player.html" "$HOST:$MEDIA_ROOT/player/index.html"
+rsync -az -e "$RSYNC_SSH" "$ROOT/web/node_modules/hls.js/dist/hls.min.js" "$HOST:$MEDIA_ROOT/player/hls.min.js"
 
 # ---------------------------------------------------------------- 4. 服务器配置并启动
 echo "→ configure runtime on $HOST"
 remote "$REMOTE_ENV bash -s" << 'REMOTE'
 set -euo pipefail
-chmod -R a+rX "$WEB_ROOT"
+chmod -R a+rX "$WEB_ROOT" "$MEDIA_ROOT/player"
 
 # 4.1 生产 .env：只在不存在时生成，已有的绝不覆盖（里面有数据库口令和签名密钥）。
 if [[ ! -f "$REMOTE_DIR/.env" ]]; then
@@ -140,9 +148,10 @@ PAY_WEBHOOK_SECRET={key()}
 BUNNY_CALLBACK_SECRET={key()}
 MODERATION_KEY_SECRET={key()}
 
-# ---- 第三方服务：填好后执行 systemctl restart minitv-api ----
-# 视频（Bunny）：fake 模式下不能真正上传和播放。切 real 前要把下面的 BUNNY_* 全部填好（说明见仓库 .env.example）。
-BUNNY_MODE=fake
+# ---- 视频 ----
+# local：本机自建（磁盘 + ffmpeg 转码 + Nginx 分发，MEDIA_* 由部署脚本补齐）；
+# real：用 Bunny，要把下面的 BUNNY_* 全部填好（说明见仓库 .env.example）；fake：只走流程，视频不能播放。
+BUNNY_MODE=local
 # BUNNY_API_KEY=
 # BUNNY_STORAGE_ZONE=
 # BUNNY_STORAGE_HOST=
@@ -157,6 +166,7 @@ BUNNY_MODE=fake
 # BUNNY_STREAM_PULL_ZONE_ID=
 # BUNNY_STREAM_CDN_HOST=
 # BUNNY_STREAM_TOKEN_KEY=
+# ---- 第三方服务：用 scripts/lax_env.sh 写入，脚本会重启服务 ----
 # 邮件（Resend）：注册 / 登录验证码。RESEND_FROM 必须是 Resend 里验证过的域名。
 # RESEND_API_KEY=
 # RESEND_FROM=
@@ -177,6 +187,32 @@ PY
 else
   echo "keeping existing production env"
 fi
+
+# 4.1b 本机媒体（BUNNY_MODE=local）需要的键：缺哪个补哪个，已有的不动。
+python3 - "$REMOTE_DIR/.env" << 'PY'
+import os
+import secrets
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+d = os.environ["DOMAIN"]
+lines = path.read_text().splitlines()
+present = {line.split("=", 1)[0].strip() for line in lines if "=" in line and not line.lstrip().startswith("#")}
+wanted = {
+    "MEDIA_ROOT": os.environ["MEDIA_ROOT"],
+    "MEDIA_BASE_URL": f"https://media.{d}",
+    "MEDIA_TUS_ENDPOINT": f"https://api.{d}/v1/media/tus",
+    "MEDIA_RENDITIONS": "360,720",
+    "MEDIA_TOKEN_KEY": secrets.token_urlsafe(32),
+}
+missing = [key for key in wanted if key not in present]
+if missing:
+    lines += ["", "# ---- 本机媒体（BUNNY_MODE=local）。MEDIA_TOKEN_KEY 同时写进 Nginx 的 secure_link，改了要重新部署 ----"]
+    lines += [f"{key}={wanted[key]}" for key in missing]
+    path.write_text("\n".join(lines) + "\n")
+    print("added media keys:", ", ".join(missing))
+PY
 set -a
 # shellcheck disable=SC1091
 source "$REMOTE_DIR/.env"
@@ -239,13 +275,35 @@ RestartSec=2
 [Install]
 WantedBy=multi-user.target
 UNIT
+cat > /etc/systemd/system/minitv-media.service << UNIT
+[Unit]
+Description=AsiaTV media transcoder (BUNNY_MODE=local)
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+WorkingDirectory=$REMOTE_DIR/backend
+EnvironmentFile=$REMOTE_DIR/.env
+Environment=PYTHONUNBUFFERED=1
+ExecStart=$REMOTE_DIR/.venv/bin/python -m app.media_worker
+Restart=always
+RestartSec=5
+# 转码给网站让路：低 CPU / IO 优先级。重启时正在转的那一集会自动重新排队。
+Nice=10
+CPUWeight=20
+IOSchedulingClass=idle
+
+[Install]
+WantedBy=multi-user.target
+UNIT
 systemctl daemon-reload
-systemctl enable minitv-api
-systemctl restart minitv-api
+systemctl enable minitv-api minitv-media
+systemctl restart minitv-api minitv-media
 
 # 4.5 Nginx：先上 80 端口（ACME 验证 + 跳转 https），拿到证书后再写 443。
 # 本机内核禁用了 IPv6，DNS 也没有 AAAA 记录，所以只监听 IPv4。
-NAMES=("$DOMAIN" "www.$DOMAIN" "h5.$DOMAIN" "admin.$DOMAIN" "api.$DOMAIN")
+NAMES=("$DOMAIN" "www.$DOMAIN" "h5.$DOMAIN" "admin.$DOMAIN" "api.$DOMAIN" "media.$DOMAIN")
 CERT_DIR="/etc/letsencrypt/live/$DOMAIN"
 
 cat > /etc/nginx/sites-available/minitv-http << NGINX
@@ -343,6 +401,21 @@ server {
     include snippets/minitv-ssl.conf;
     client_max_body_size 32m;
 
+    # 视频直传（TUS）：允许大文件，边收边转给 API，不在 Nginx 里缓冲落盘。
+    location /v1/media/tus {
+        client_max_body_size 4200m;
+        proxy_request_buffering off;
+        proxy_buffering off;
+        proxy_http_version 1.1;
+        proxy_read_timeout 3600s;
+        proxy_send_timeout 3600s;
+        proxy_pass http://127.0.0.1:$API_PORT;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto https;
+    }
+
     location / {
         proxy_pass http://127.0.0.1:$API_PORT;
         proxy_set_header Host \$host;
@@ -354,6 +427,44 @@ server {
 }
 NGINX
 ln -sfn /etc/nginx/sites-available/minitv-https /etc/nginx/sites-enabled/minitv-https
+
+# media 站点单独一个文件、600 权限：secure_link 的密钥写在里面。
+# token = base64url(md5("{expires}:{video_id}:{MEDIA_TOKEN_KEY}"))，和 backend/app/modules/common/local_media.py 一致。
+# 分片用相对路径，自动继承同一个目录级 token；过期返回 410，伪造返回 403。
+install -m 600 /dev/null /etc/nginx/sites-available/minitv-media
+cat > /etc/nginx/sites-available/minitv-media << NGINX
+server {
+    server_name media.$DOMAIN;
+    include snippets/minitv-ssl.conf;
+
+    location ~ "^/v/(?<tok>[A-Za-z0-9_-]+)/(?<exp>[0-9]+)/(?<vid>[0-9a-f-]{36})/(?<rest>[A-Za-z0-9_.-]+(/[A-Za-z0-9_.-]+)?)\$" {
+        secure_link \$tok,\$exp;
+        secure_link_md5 "\$exp:\$vid:$MEDIA_TOKEN_KEY";
+        if (\$secure_link = "") { return 403; }
+        if (\$secure_link = "0") { return 410; }
+        types { application/vnd.apple.mpegurl m3u8; video/mp2t ts; }
+        add_header Access-Control-Allow-Origin "*" always;
+        add_header Cache-Control "private, max-age=300" always;
+        alias $MEDIA_ROOT/hls/\$vid/\$rest;
+    }
+
+    # 封面、字幕：公开访问（地址里带 ?v= 版本号，可以缓存）。
+    location /f/ {
+        alias $MEDIA_ROOT/files/;
+        add_header Access-Control-Allow-Origin "*" always;
+        add_header Cache-Control "public, max-age=86400";
+    }
+
+    # 后台「预览」播放页。
+    location /player/ {
+        alias $MEDIA_ROOT/player/;
+        add_header Cache-Control "no-cache";
+    }
+
+    location / { return 404; }
+}
+NGINX
+ln -sfn /etc/nginx/sites-available/minitv-media /etc/nginx/sites-enabled/minitv-media
 nginx -t
 systemctl reload nginx
 
@@ -369,6 +480,18 @@ if [[ $ok != 1 ]]; then
   exit 1
 fi
 echo "api: $(curl -fsS --resolve "api.$DOMAIN:443:127.0.0.1" "https://api.$DOMAIN/health")"
+if ! systemctl is-active --quiet minitv-media; then
+  echo "media worker is not running" >&2
+  journalctl -u minitv-media -n 40 --no-pager >&2 || true
+  exit 1
+fi
+media_check() { curl -sS -o /dev/null -w '%{http_code}' --resolve "media.$DOMAIN:443:127.0.0.1" "https://media.$DOMAIN$1"; }
+code=$(media_check /player/)
+echo "media.$DOMAIN/player/: HTTP $code"
+[[ $code == 200 ]] || { echo "media 站点自检失败" >&2; exit 1; }
+code=$(media_check "/v/AAAAAAAAAAAAAAAAAAAAAA/9999999999/00000000-0000-0000-0000-000000000000/playlist.m3u8")
+echo "media.$DOMAIN 伪造 token: HTTP $code"
+[[ $code == 403 ]] || { echo "secure_link 没有生效（伪造 token 应返回 403）" >&2; exit 1; }
 for name in "$DOMAIN" "h5.$DOMAIN" "admin.$DOMAIN"; do
   code=$(curl -sS -o /dev/null -w '%{http_code}' --resolve "$name:443:127.0.0.1" "https://$name/")
   echo "$name: HTTP $code"

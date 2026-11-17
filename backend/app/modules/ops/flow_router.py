@@ -488,6 +488,9 @@ def _remote_upload_stalled(remote: dict) -> bool:
     status = int(remote.get("status") or 0)
     if status not in (0, 1, 2):
         return False
+    if remote.get("local") and status != 0:
+        # 本机模式：原片已落盘，排队由 media worker 负责；剧多时排队超过一小时是正常的。
+        return False
     uploaded = remote.get("dateUploaded")
     if not uploaded:
         return False
@@ -697,7 +700,7 @@ def episode_upload_headers(
     if bunny.live():
         return {
             "video_id": episode.bunny_video_id,
-            "upload_url": bunny.STREAM_TUS_ENDPOINT,
+            "upload_url": bunny.tus_endpoint(),
             "headers": bunny.tus_headers(episode.bunny_video_id),
         }
     return {

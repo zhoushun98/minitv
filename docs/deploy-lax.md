@@ -10,9 +10,10 @@ API、官网、H5、管理后台全部跑在服务器 `lax` 上（SSH 别名，�
 | `www.sanaoman.asia` | 301 → `sanaoman.asia` | — |
 | `h5.sanaoman.asia` | H5 | `/var/www/minitv/h5` |
 | `admin.sanaoman.asia` | 管理后台（vite base `/admin/`，深链兜底到 `/admin/index.html`） | `/var/www/minitv/admin-root/admin` |
-| `api.sanaoman.asia` | FastAPI，Nginx 反代到 `127.0.0.1:18110` | `/opt/minitv` |
+| `api.sanaoman.asia` | FastAPI，Nginx 反代到 `127.0.0.1:18110`；`/v1/media/tus` 是视频直传入口 | `/opt/minitv` |
+| `media.sanaoman.asia` | 视频（HLS）、封面、后台预览播放页 | `/srv/minitv-media` |
 
-DNS 上是 5 条 A 记录（`@ / www / h5 / admin / api`），全部 `proxied=false`。服务器禁用了 IPv6，所以没有 AAAA 记录，Nginx 也只监听 IPv4。
+DNS 上是 6 条 A 记录（`@ / www / h5 / admin / api / media`），全部 `proxied=false`。服务器禁用了 IPv6，所以没有 AAAA 记录，Nginx 也只监听 IPv4。
 
 另外两个静态目录：
 
@@ -39,17 +40,36 @@ python3 scripts/release.py status
 
 可用环境变量覆盖：`MINITV_DEPLOY_HOST`（默认 `lax`）、`MINITV_DOMAIN`（默认 `sanaoman.asia`）、`MINITV_REMOTE_DIR`、`MINITV_WEB_ROOT`、`MINITV_API_PORT`。
 
+## 视频：本机自建（`BUNNY_MODE=local`）
+
+视频不经过任何第三方，整条链路都在 lax 上：
+
+1. **上传**：后台、合作方后台、CLI 用 TUS 直传到 `https://api.sanaoman.asia/v1/media/tus`。协议和授权头与 Bunny 相同，所以客户端不用改；支持断点续传，单个文件上限 4 GiB。
+2. **转码**：systemd 服务 `minitv-media`（`backend/app/media_worker.py`）一次转一集，按 `MEDIA_RENDITIONS`（默认 360p、720p，不放大）转成 HLS，以低优先级运行。转完立即把分集从「转码中」推进到「审核中」，并删除原片。
+3. **播放**：API 签发 `https://media.sanaoman.asia/v/{token}/{expires}/{id}/playlist.m3u8`，5 分钟有效，由 Nginx `secure_link` 校验：伪造返回 403，过期返回 410。分片用相对路径，继承同一个 token。
+4. **封面和字幕**：存在 `/srv/minitv-media/files/`，通过 `https://media.sanaoman.asia/f/...` 公开访问。
+5. **清理**：worker 每小时删除一次没有被任何分集引用、且创建超过一天的视频（被替换或删除的旧视频）。
+
+磁盘布局与 token 算法见 `backend/app/modules/common/local_media.py`。代码对 Bunny 的调用都经过 `bunny.py` 网关，以后要换回 Bunny，只需把 `BUNNY_MODE` 改成 `real` 并填好 `BUNNY_*`。
+
+运维：
+
+```bash
+ssh lax systemctl status minitv-media
+ssh lax journalctl -u minitv-media -n 50 --no-pager   # 每集的转码耗时、失败原因
+ssh lax du -sh /srv/minitv-media/hls                   # 视频占用的磁盘
+```
+
 ## 补第三方密钥
 
-首次部署是空库，视频服务为 `BUNNY_MODE=fake`。以下功能要等对应密钥配好后才能用：
+以下功能要等对应密钥配好后才能用：
 
 | 服务 | 功能 | `.env` 键 |
 | --- | --- | --- |
-| Bunny | 视频上传、转码、播放，封面 CDN | `BUNNY_MODE=real` 加上全部 `BUNNY_*`（说明见 `.env.example`） |
-| Resend | 注册 / 登录验证码邮件 | `RESEND_API_KEY`、`RESEND_FROM` |
+| Resend | 注册 / 登录验证码邮件（已配置） | `RESEND_API_KEY`、`RESEND_FROM` |
 | Stripe | 会员订阅、购买金币 | `STRIPE_SECRET_KEY`、`STRIPE_WEBHOOK_SECRET` |
 
-用 `scripts/lax_env.sh` 写入：参数只写变量名，值从当前 shell 环境读取，经 ssh stdin 传给服务器，所以密钥不会进入命令行、发布记录或 git。脚本会替换 `.env` 里的同名行或注释占位，修改前的版本备份为 `.env.bak`，然后重启 `minitv-api` 并做健康检查。
+用 `scripts/lax_env.sh` 写入：参数只写变量名，值从当前 shell 环境读取，经 ssh stdin 传给服务器，所以密钥不会进入命令行、发布记录或 git。脚本会替换 `.env` 里的同名行或注释占位，修改前的版本备份为 `.env.bak`，然后重启 `minitv-api` 和 `minitv-media` 并做健康检查。
 
 ```bash
 RESEND_API_KEY=re_xxx RESEND_FROM='AsiaTV <noreply@sanaoman.asia>' \
@@ -73,7 +93,7 @@ python3 scripts/release.py run --target lax-apk --note "APK 1.0.0" -- ./scripts/
 ## 运维速查
 
 ```bash
-ssh lax systemctl status minitv-api nginx postgresql redis-server
+ssh lax systemctl status minitv-api minitv-media nginx postgresql redis-server
 ssh lax journalctl -u minitv-api -n 100 --no-pager
 ssh lax certbot certificates          # 证书有效期；certbot.timer 负责自动续期
 ```

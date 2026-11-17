@@ -859,7 +859,7 @@ def upload_headers(
     return {
         "episode_id": episode.id,
         "video_id": episode.bunny_video_id,
-        "upload_url": bunny.STREAM_TUS_ENDPOINT if bunny.live() else "",
+        "upload_url": bunny.tus_endpoint() if bunny.live() else "",
         "headers": bunny.tus_headers(episode.bunny_video_id) if bunny.live() else {},
     }
 

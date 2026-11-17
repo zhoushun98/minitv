@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# 把本地 shell 环境里的指定变量写进服务器的 $REMOTE_DIR/.env，然后重启 minitv-api 并做健康检查。
+# 把本地 shell 环境里的指定变量写进服务器的 $REMOTE_DIR/.env，然后重启 minitv-api / minitv-media 并做健康检查。
 #
 # 参数只写变量名，值从当前环境读取，经 ssh stdin 传给服务器。所以密钥不会出现在
 # 命令行参数、发布记录（deployments/releases/*.json 只记命令）或 git 里。
 #
 # 用法（经发布脚本：持锁、留记录）：
-#   RESEND_API_KEY=re_xxx RESEND_FROM='MiniTV <noreply@sanaoman.asia>' \
+#   RESEND_API_KEY=re_xxx RESEND_FROM='AsiaTV <noreply@sanaoman.asia>' \
 #     python3 scripts/release.py run --target lax-env --note "配置 Resend" -- \
 #     ./scripts/lax_env.sh RESEND_API_KEY RESEND_FROM
 #
@@ -82,6 +82,8 @@ os.replace(tmp, env)
 PY
 
 systemctl restart minitv-api
+# 转码 worker 也读同一份 .env（比如 BUNNY_MODE / MEDIA_*）；没装这个服务时 try-restart 什么都不做。
+systemctl try-restart minitv-media
 for _ in $(seq 1 20); do
   if curl -fsS "http://127.0.0.1:$API_PORT/health" > /dev/null 2>&1; then
     echo "api restarted, health ok"

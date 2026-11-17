@@ -59,6 +59,8 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    # 后台跨域直传视频（TUS）要读这几个响应头：拿不到 Location 就无法续传。
+    expose_headers=["Location", "Upload-Offset", "Upload-Length", "Tus-Resumable"],
 )
 
 
@@ -80,6 +82,7 @@ def health() -> dict:
 
 def _register_routers() -> None:
     from app.modules.content.public_router import router as public_router
+    from app.modules.media.router import router as media_router
     from app.modules.ops.api_key_router import router as admin_api_key_router
     from app.modules.ops.flow_router import router as admin_flow_router
     from app.modules.ops.partner_router import router as partner_router
@@ -98,6 +101,7 @@ def _register_routers() -> None:
     app.include_router(public_router)
     app.include_router(public_flow_router)
     app.include_router(feed_router)
+    app.include_router(media_router)
 
 
 _register_routers()
