@@ -52,7 +52,7 @@ python3 scripts/release.py status
 用 `scripts/lax_env.sh` 写入：参数只写变量名，值从当前 shell 环境读取，经 ssh stdin 传给服务器，所以密钥不会进入命令行、发布记录或 git。脚本会替换 `.env` 里的同名行或注释占位，修改前的版本备份为 `.env.bak`，然后重启 `minitv-api` 并做健康检查。
 
 ```bash
-RESEND_API_KEY=re_xxx RESEND_FROM='MiniTV <noreply@sanaoman.asia>' \
+RESEND_API_KEY=re_xxx RESEND_FROM='AsiaTV <noreply@sanaoman.asia>' \
   python3 scripts/release.py run --target lax-env --note "配置 Resend" -- \
   ./scripts/lax_env.sh RESEND_API_KEY RESEND_FROM
 ```
