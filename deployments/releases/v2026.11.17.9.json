@@ -1,0 +1,23 @@
+{
+  "version": "v2026.11.17.9",
+  "target": "lax-env",
+  "status": "published",
+  "sha": "4132cc6c2cf928a15ae8758f4a30ea309220ca32",
+  "short_sha": "4132cc6c",
+  "command": [
+    "./scripts/lax_env.sh",
+    "RESEND_FROM"
+  ],
+  "exit_code": 0,
+  "started_at": "2026-11-17T23:56:28+08:00",
+  "finished_at": "2026-11-17T23:56:33+08:00",
+  "operator": {
+    "user": "jason",
+    "host": "Jason.local",
+    "pid": 47169,
+    "agent_session": null,
+    "cwd": "/Users/jason/dev/minitv"
+  },
+  "note": "邮件发件人改为 AsiaTV",
+  "dirty": false
+}
