@@ -17,7 +17,7 @@ DNS 上是 5 条 A 记录（`@ / www / h5 / admin / api`），全部 `proxied=fa
 另外两个静态目录：
 
 - `https://sanaoman.asia/cli/`：`cli/install.sh` 和 `cli/minitv`，部署时同步，也就是后台「API Key」页面里给出的安装命令所用的文件。
-- `https://sanaoman.asia/download/`：手工放 APK（`/var/www/minitv/web/download/`），部署不会删。文件名必须和 `web/src/downloads.ts` 一致；文件不存在时返回真实的 404。
+- `https://sanaoman.asia/download/`：Android APK（服务器路径 `/var/www/minitv/web/download/`），由 `scripts/publish_apk_lax.sh` 发布，部署不会删除。文件不存在时返回真实的 404。
 
 ## 发布
 
@@ -49,7 +49,26 @@ python3 scripts/release.py status
 | Resend | 注册 / 登录验证码邮件 | `RESEND_API_KEY`、`RESEND_FROM` |
 | Stripe | 会员订阅、购买金币 | `STRIPE_SECRET_KEY`、`STRIPE_WEBHOOK_SECRET` |
 
-操作：`ssh lax`，编辑 `/opt/minitv/.env`（模板里已有注释占位），然后执行 `systemctl restart minitv-api`。不需要重新部署。
+用 `scripts/lax_env.sh` 写入：参数只写变量名，值从当前 shell 环境读取，经 ssh stdin 传给服务器，所以密钥不会进入命令行、发布记录或 git。脚本会替换 `.env` 里的同名行或注释占位，修改前的版本备份为 `.env.bak`，然后重启 `minitv-api` 并做健康检查。
+
+```bash
+RESEND_API_KEY=re_xxx RESEND_FROM='MiniTV <noreply@sanaoman.asia>' \
+  python3 scripts/release.py run --target lax-env --note "配置 Resend" -- \
+  ./scripts/lax_env.sh RESEND_API_KEY RESEND_FROM
+```
+
+不需要重新部署代码。
+
+## Android APK
+
+```bash
+python3 scripts/release.py run --target lax-apk --note "APK 1.0.0" -- ./scripts/publish_apk_lax.sh
+```
+
+- 在本地用 Flutter 构建 arm64 release 包，`--dart-define=API_BASE=https://api.sanaoman.asia`；构建完会自检 `libapp.so` 里确实有这个 API 地址，然后上传到 `/download/`，并核对线上的状态码和文件大小。
+- 文件名和版本以 `web/src/downloads.ts` 为准，而且必须与 `app/pubspec.yaml` 的 `version` 一致。发新版时 downloads.ts（url / version / size）和 pubspec 一起改，然后先跑 `deploy_lax.sh` 更新官网按钮，再跑本脚本。
+- 签名沿用 `app/android` 的配置（release 用本机 `~/.android/debug.keystore`）。必须在同一台机器上构建，否则用户装了旧版就无法覆盖升级。
+- 依赖：Flutter ≥ 3.47（`brew install --cask flutter`）、JDK 17、Android SDK（默认 `/opt/homebrew/share/android-commandlinetools`）。
 
 ## 运维速查
 
