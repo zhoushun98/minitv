@@ -20,7 +20,7 @@
 |---|---|
 | SSH | `ssh lax`（本机 `~/.ssh/config` 别名，root + Key 免密） |
 | 系统 | Debian 13 x86_64，内核禁用 IPv6 |
-| 域名 | `sanaoman.asia` / `www` / `h5` / `admin` / `api`，Cloudflare 只做 DNS（灰云），证书走服务器上的 Let's Encrypt |
+| 域名 | `sanaoman.asia` / `www` / `h5` / `admin` / `api` / `media`，Cloudflare 只做 DNS（灰云），证书走服务器上的 Let's Encrypt |
 | 发布 | `python3 scripts/release.py run --target lax -- ./scripts/deploy_lax.sh` |
 
 - API、官网、H5、后台、视频（`BUNNY_MODE=local`：ffmpeg 转码 + `media.sanaoman.asia` 分发）都在这一台机器上，细节见 `docs/deploy-lax.md`。
