@@ -1,0 +1,22 @@
+{
+  "version": "v2026.11.17.1",
+  "target": "lax",
+  "status": "published",
+  "sha": "608d55de71fb90f2b7d4e1672c2058a6a8029efe",
+  "short_sha": "608d55de",
+  "command": [
+    "./scripts/deploy_lax.sh"
+  ],
+  "exit_code": 0,
+  "started_at": "2026-11-17T23:13:28+08:00",
+  "finished_at": "2026-11-17T23:14:46+08:00",
+  "operator": {
+    "user": "jason",
+    "host": "Jason.local",
+    "pid": 27312,
+    "agent_session": null,
+    "cwd": "/Users/jason/dev/minitv"
+  },
+  "note": "sanaoman.asia 全栈首发（空库，BUNNY_MODE=fake）",
+  "dirty": false
+}
