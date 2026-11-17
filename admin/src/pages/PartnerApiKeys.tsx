@@ -61,7 +61,7 @@ const STATE_TAG: Record<KeyState, { color: string; label: string }> = {
 };
 
 const CLI_ONE_LINER = (key: string) =>
-  `curl -fsSL https://minitv.us/cli/install.sh | MINITV_API_KEY='${key}' sh`;
+  `curl -fsSL https://sanaoman.asia/cli/install.sh | MINITV_API_KEY='${key}' sh`;
 
 function scopeText(scopes: string[]): string {
   if (!scopes.length) return "跟随角色";

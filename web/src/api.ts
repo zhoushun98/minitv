@@ -79,13 +79,13 @@ export type PlaybackAuth = {
  * Production builds set VITE_API_BASE (see web/.env.production); local Vite dev
  * leaves it empty and uses the proxy.
  *
- * The marketing site is served straight from R2, so there is no reverse proxy:
- * a production build that somehow lacks the env var would request /v1/... on
- * minitv.us itself, get a 404 from the CDN and render "Could not load MiniTV".
- * Fall back to the public API host instead of shipping a dead page.
+ * The marketing site is a static site with no /v1 reverse proxy: a production
+ * build that somehow lacks the env var would request /v1/... on its own domain,
+ * get a 404 and render "Could not load MiniTV". Fall back to the public API host
+ * instead of shipping a dead page.
  */
 export const API_BASE = (
-  import.meta.env.VITE_API_BASE ?? (import.meta.env.PROD ? "https://api.minitv.us" : "")
+  import.meta.env.VITE_API_BASE ?? (import.meta.env.PROD ? "https://api.sanaoman.asia" : "")
 ).replace(/\/$/, "");
 
 function apiUrl(path: string): string {

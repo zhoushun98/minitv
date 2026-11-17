@@ -1,9 +1,9 @@
 /** Full web app (the H5 build on its own domain). Anything that leaves the
  * marketing site goes through this constant so the URL is never typed twice. */
-export const WEB_APP_URL = "https://h5.minitv.us";
+export const WEB_APP_URL = import.meta.env.VITE_WEB_APP_URL ?? "https://h5.sanaoman.asia";
 
 /** Operator console. Linked from the footer so the public nav stays clean. */
-export const ADMIN_URL = "https://admin.minitv.us";
+export const ADMIN_URL = import.meta.env.VITE_ADMIN_URL ?? "https://admin.sanaoman.asia";
 
 type NavItem = { label: string; href: string; external?: boolean };
 

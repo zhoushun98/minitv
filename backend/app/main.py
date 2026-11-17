@@ -36,10 +36,10 @@ _DEFAULT_ORIGINS = [
     "http://127.0.0.1:5173",
     "http://localhost:5174",
     "http://127.0.0.1:5174",
-    "https://minitv.us",
-    "https://www.minitv.us",
-    "https://admin.minitv.us",
-    "https://h5.minitv.us",
+    "https://sanaoman.asia",
+    "https://www.sanaoman.asia",
+    "https://admin.sanaoman.asia",
+    "https://h5.sanaoman.asia",
 ]
 
 

@@ -14,6 +14,18 @@
 - 直连 22 端口正常（2026-10-14 验证）。若某代理端点封锁出站 22 端口导致连不上，可临时经 `ali-sz-1` 跳板（在 `~/.ssh/config` 的 `byteplus-sg-1` 块内加 `ProxyJump ali-sz-1`）。
 - 服务器上的部署 / 发布动作仍必须走 `python3 scripts/release.py`（见下节发布纪律）。
 
+### lax — sanaoman.asia 全栈（2026-11-17 起）
+
+| 项 | 值 |
+|---|---|
+| SSH | `ssh lax`（本机 `~/.ssh/config` 别名，root + Key 免密） |
+| 系统 | Debian 13 x86_64，内核禁用 IPv6 |
+| 域名 | `sanaoman.asia` / `www` / `h5` / `admin` / `api`，Cloudflare 只做 DNS（灰云），证书走服务器上的 Let's Encrypt |
+| 发布 | `python3 scripts/release.py run --target lax -- ./scripts/deploy_lax.sh` |
+
+- API、官网、H5、后台都在这一台机器上，细节见 `docs/deploy-lax.md`。
+- 生产密钥只放在服务器的 `/opt/minitv/.env` 里，不进仓库，也不从本机复制。
+
 ## 发布纪律（多 Agent 强制，违反即事故）
 
 本仓库可能有多个 Agent / 会话同时在执行任务。所有"上线"动作（发布到 Cloudflare R2、部署到服务器）必须遵守：

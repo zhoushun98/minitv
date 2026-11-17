@@ -35,7 +35,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 IMPORTER = ROOT / "scripts" / "import_hotlist.py"
-API_DEFAULT = "https://api.minitv.us"
+API_DEFAULT = "https://api.sanaoman.asia"
 UA = (
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
     "(KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"

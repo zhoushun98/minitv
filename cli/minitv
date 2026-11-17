@@ -27,9 +27,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 VERSION = "0.4.0"
-DEFAULT_BASE = "https://api.minitv.us"
+DEFAULT_BASE = "https://api.sanaoman.asia"
 # Cloudflare blocks urllib's default UA, so every request carries this one.
-UA = f"minitv/{VERSION} (+https://minitv.us)"
+UA = f"minitv/{VERSION} (+https://sanaoman.asia)"
 
 EXIT_OK = 0
 EXIT_ERROR = 1
@@ -91,7 +91,7 @@ def credentials_path() -> Path:
 DEFAULT_CONFIG = {
     "default_profile": "prod",
     "profiles": {
-        "prod": {"base_url": "https://api.minitv.us", "sandbox_drama_id": 0},
+        "prod": {"base_url": "https://api.sanaoman.asia", "sandbox_drama_id": 0},
         "local": {"base_url": "http://127.0.0.1:18110", "sandbox_drama_id": 0},
     },
 }
@@ -2259,7 +2259,7 @@ def render_guide():
         "```",
         "",
         "```bash",
-        "curl -fsSL https://minitv.us/cli/install.sh | sh",
+        "curl -fsSL https://sanaoman.asia/cli/install.sh | sh",
         "minitv config set-key",
         "minitv doctor",
         "```",

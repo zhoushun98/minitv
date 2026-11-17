@@ -28,7 +28,7 @@ def stripe_env(monkeypatch):
     monkeypatch.setenv("STRIPE_PRICE_WEEKLY", "price_weekly")
     monkeypatch.setenv("STRIPE_PRICE_MONTHLY", "price_monthly")
     monkeypatch.setenv("STRIPE_PRICE_YEARLY", "price_yearly")
-    monkeypatch.setenv("H5_PUBLIC_BASE_URL", "https://h5.minitv.us")
+    monkeypatch.setenv("H5_PUBLIC_BASE_URL", "https://h5.sanaoman.asia")
 
 
 def sign(body: bytes, timestamp: int | None = None) -> str:

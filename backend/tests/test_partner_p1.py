@@ -29,7 +29,7 @@ def stripe_env(monkeypatch):
     monkeypatch.setenv("STRIPE_SECRET_KEY", "sk_test_unit")
     monkeypatch.setenv("STRIPE_WEBHOOK_SECRET", SECRET)
     monkeypatch.setenv("STRIPE_PRICE_MONTHLY", "price_monthly")
-    monkeypatch.setenv("H5_PUBLIC_BASE_URL", "https://h5.minitv.us")
+    monkeypatch.setenv("H5_PUBLIC_BASE_URL", "https://h5.sanaoman.asia")
 
 
 def sign(body: bytes) -> str:

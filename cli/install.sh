@@ -1,14 +1,14 @@
 #!/bin/sh
 # MiniTV CLI installer.
 #
-#   curl -fsSL https://minitv.us/cli/install.sh | sh
-#   curl -fsSL https://minitv.us/cli/install.sh | MINITV_API_KEY='mk_live_...' sh
+#   curl -fsSL https://sanaoman.asia/cli/install.sh | sh
+#   curl -fsSL https://sanaoman.asia/cli/install.sh | MINITV_API_KEY='mk_live_...' sh
 #
 # 行为：校验 python3 → 下载单文件到 ~/.local/bin/minitv → 可选写入 API Key →
 # 自检。幂等：重复执行是覆盖升级，没给 MINITV_API_KEY 时不动已保存的密钥。
 set -eu
 
-BASE="${MINITV_CLI_BASE:-https://minitv.us/cli}"
+BASE="${MINITV_CLI_BASE:-https://sanaoman.asia/cli}"
 PREFIX="${MINITV_BIN_DIR:-$HOME/.local/bin}"
 DO_DOCTOR=1
 MIN_PY="3.8"
@@ -27,7 +27,7 @@ minitv install.sh
 用法: sh install.sh [--prefix DIR] [--base URL] [--no-doctor]
 
   --prefix DIR   安装目录（默认 ~/.local/bin）
-  --base URL     下载基址（默认 https://minitv.us/cli）
+  --base URL     下载基址（默认 https://sanaoman.asia/cli）
   --no-doctor    装完不跑 minitv doctor
   -h, --help     显示本说明
 

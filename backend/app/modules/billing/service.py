@@ -770,7 +770,7 @@ def create_checkout_session(
 
     mode = billing_mode(session)
     ensure_chargeable(mode, version.price_cents, version.currency)
-    base = os.environ.get("H5_PUBLIC_BASE_URL", "https://h5.minitv.us").rstrip("/")
+    base = os.environ.get("H5_PUBLIC_BASE_URL", "https://h5.sanaoman.asia").rstrip("/")
     data = {
         "mode": "payment" if mode == "one_time" else "subscription",
         "line_items[0][price]": ensure_stripe_price(session, plan, version, mode),

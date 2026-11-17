@@ -1,12 +1,12 @@
-/** Android build served straight from the marketing-site bucket.
+/** Android build served by the marketing site itself (same origin).
  *
- * Uploaded with `python3 scripts/release.py r2 --dist <dir> --prefix download
- * --allow-no-index`, which lands the file at `https://minitv.us/download/...`.
+ * Drop the file into /var/www/minitv/web/download/ on the server; Nginx serves
+ * /download/ as plain files (a missing APK is a real 404, not the SPA page).
  * The filename carries the version so a rebuilt APK is never served from a
  * warm CDN edge; bump all three fields together when a new build ships.
  */
 export const ANDROID_APK = {
-  url: "https://minitv.us/download/minitv-1.0.0-arm64-v8a.apk",
+  url: "/download/minitv-1.0.0-arm64-v8a.apk",
   version: "1.0.0",
   size: "20 MB",
 };

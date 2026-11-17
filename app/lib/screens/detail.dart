@@ -23,7 +23,7 @@ const _qualityKey = 'minitv_app_quality';
 const _debugQuality = String.fromEnvironment('DEBUG_QUALITY', defaultValue: '');
 
 /// Where the share sheet points — the H5 viewer is the public watch page.
-const shareBaseUrl = 'https://h5.minitv.us';
+const shareBaseUrl = 'https://h5.sanaoman.asia';
 
 /// The drama's play page (design draft P8 播放态 + P9 选集面板).
 ///

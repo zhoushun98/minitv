@@ -383,7 +383,7 @@ function HomePage() {
                           ? "btn btn-primary btn-block plan-cta"
                           : "btn btn-ghost btn-block plan-cta"
                       }
-                      href="https://h5.minitv.us"
+                      href={WEB_APP_URL}
                     >
                       Subscribe on the web
                     </a>

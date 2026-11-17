@@ -72,11 +72,11 @@ const TTL_OPTIONS = [
 ];
 
 /** One source of truth for the copy-paste commands (see docs/cli-execution-plan.md §3.7). */
-const CLI_INSTALL = "curl -fsSL https://minitv.us/cli/install.sh | sh";
+const CLI_INSTALL = "curl -fsSL https://sanaoman.asia/cli/install.sh | sh";
 const CLI_SET_KEY = "minitv config set-key";
 const CLI_DOCTOR = "minitv doctor";
 const cliOneLiner = (key: string) =>
-  `curl -fsSL https://minitv.us/cli/install.sh | MINITV_API_KEY='${key}' sh`;
+  `curl -fsSL https://sanaoman.asia/cli/install.sh | MINITV_API_KEY='${key}' sh`;
 
 const STATE_TAG: Record<KeyState, { color: string; label: string }> = {
   active: { color: "green", label: "有效" },
