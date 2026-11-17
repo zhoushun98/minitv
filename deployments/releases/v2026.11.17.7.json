@@ -1,0 +1,22 @@
+{
+  "version": "v2026.11.17.7",
+  "target": "lax-apk",
+  "status": "published",
+  "sha": "53c64ddf59c6c98690fcc2cd755ba6a9aae4ea98",
+  "short_sha": "53c64ddf",
+  "command": [
+    "./scripts/publish_apk_lax.sh"
+  ],
+  "exit_code": 0,
+  "started_at": "2026-11-17T23:40:34+08:00",
+  "finished_at": "2026-11-17T23:41:26+08:00",
+  "operator": {
+    "user": "jason",
+    "host": "Jason.local",
+    "pid": 41398,
+    "agent_session": null,
+    "cwd": "/Users/jason/dev/minitv"
+  },
+  "note": "Android APK 1.0.0 改名 AsiaTV",
+  "dirty": false
+}
