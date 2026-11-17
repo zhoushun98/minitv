@@ -1,0 +1,22 @@
+{
+  "version": "v2026.11.17.3",
+  "target": "lax-apk",
+  "status": "failed",
+  "sha": "b0660c9dd7c28aef2def5db3369e00a9b8938914",
+  "short_sha": "b0660c9d",
+  "command": [
+    "./scripts/publish_apk_lax.sh"
+  ],
+  "exit_code": 1,
+  "started_at": "2026-11-17T23:31:56+08:00",
+  "finished_at": "2026-11-17T23:32:02+08:00",
+  "operator": {
+    "user": "jason",
+    "host": "Jason.local",
+    "pid": 36194,
+    "agent_session": null,
+    "cwd": "/Users/jason/dev/minitv"
+  },
+  "note": "Android APK 1.0.0 arm64（API: api.sanaoman.asia）",
+  "dirty": false
+}
