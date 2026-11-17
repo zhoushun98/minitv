@@ -1,0 +1,22 @@
+{
+  "version": "v2026.11.17.6",
+  "target": "lax",
+  "status": "published",
+  "sha": "3c80d7dd681949336ee6aa374daf82f5680f580e",
+  "short_sha": "3c80d7dd",
+  "command": [
+    "./scripts/deploy_lax.sh"
+  ],
+  "exit_code": 0,
+  "started_at": "2026-11-17T23:40:00+08:00",
+  "finished_at": "2026-11-17T23:40:31+08:00",
+  "operator": {
+    "user": "jason",
+    "host": "Jason.local",
+    "pid": 41098,
+    "agent_session": null,
+    "cwd": "/Users/jason/dev/minitv"
+  },
+  "note": "品牌改名 AsiaTV",
+  "dirty": false
+}
