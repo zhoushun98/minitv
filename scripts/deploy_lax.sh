@@ -310,7 +310,7 @@ server {
     include snippets/minitv-ssl.conf;
     root $WEB_ROOT/web;
     # APK 和 CLI 是普通文件：不存在就返回真实 404，不兜底到 SPA 首页。
-    location /download/ { try_files \$uri =404; }
+    location /download/ { types { application/vnd.android.package-archive apk; } try_files \$uri =404; }
     location /cli/ { default_type text/plain; add_header Cache-Control "no-cache"; try_files \$uri =404; }
     include snippets/minitv-spa.conf;
 }
