@@ -1,0 +1,22 @@
+{
+  "version": "v2026.11.18.5",
+  "target": "lax",
+  "status": "published",
+  "sha": "492b55c7f0a5f44adc033fe310a8e74395de76dd",
+  "short_sha": "492b55c7",
+  "command": [
+    "./scripts/deploy_lax.sh"
+  ],
+  "exit_code": 0,
+  "started_at": "2026-11-18T01:40:07+08:00",
+  "finished_at": "2026-11-18T01:40:46+08:00",
+  "operator": {
+    "user": "jason",
+    "host": "Jason.local",
+    "pid": 88474,
+    "agent_session": null,
+    "cwd": "/Users/jason/dev/minitv"
+  },
+  "note": "单个视频上限 200MB → 2GB；本机模式卡死判定按最后收到字节计时",
+  "dirty": false
+}
