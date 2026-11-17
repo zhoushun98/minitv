@@ -1131,7 +1131,7 @@ function PhonePreview({
             >
               M
             </span>
-            <span style={{ fontSize: 13, fontWeight: 600, color: "#fff", flex: "0 0 auto" }}>MiniTV</span>
+            <span style={{ fontSize: 13, fontWeight: 600, color: "#fff", flex: "0 0 auto" }}>AsiaTV</span>
             <div
               style={{
                 flex: 1,
@@ -1281,7 +1281,7 @@ function PhonePreview({
                 >
                   M
                 </span>
-                <span style={{ color: "#fff", fontWeight: 600 }}>MiniTV</span>
+                <span style={{ color: "#fff", fontWeight: 600 }}>AsiaTV</span>
                 <span style={{ color: GRAY }}>独家</span>
               </div>
             ) : null}

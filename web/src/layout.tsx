@@ -23,7 +23,7 @@ export function SiteHeader() {
       <div className="shell header-inner">
         <a className="brand" href="#home">
           <img className="brand-mark" src="/brand/minitv-icon.png" alt="" aria-hidden="true" />
-          MiniTV
+          AsiaTV
         </a>
         <nav className="site-nav" aria-label="Main">
           {nav.map((item) => (
@@ -58,7 +58,7 @@ export function SiteFooter() {
           <div className="footer-brand">
             <a className="brand" href="#home">
               <img className="brand-mark" src="/brand/minitv-icon.png" alt="" aria-hidden="true" />
-              MiniTV
+              AsiaTV
             </a>
             <p>Vertical short dramas, built for the phone. Watch free episodes on the web, unlock everything in the app.</p>
           </div>
@@ -89,7 +89,7 @@ export function SiteFooter() {
           </div>
         </div>
         <div className="footer-bottom">
-          <span>© {new Date().getFullYear()} MiniTV. All rights reserved.</span>
+          <span>© {new Date().getFullYear()} AsiaTV. All rights reserved.</span>
           <div className="footer-bottom-meta">
             <span>Prices shown in USD. Subscriptions are billed in the app.</span>
             <a
@@ -97,7 +97,7 @@ export function SiteFooter() {
               href={ADMIN_URL}
               target="_blank"
               rel="noopener noreferrer"
-              title="MiniTV admin console"
+              title="AsiaTV admin console"
             >
               Admin
               <span aria-hidden="true">↗</span>

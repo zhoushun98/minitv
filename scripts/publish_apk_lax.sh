@@ -4,9 +4,9 @@
 # 用法（经发布脚本：持锁、留记录）：
 #   python3 scripts/release.py run --target lax-apk --note "APK x.y.z" -- ./scripts/publish_apk_lax.sh
 #
-# 文件名和版本以 web/src/downloads.ts 为准（官网按钮直接指向它），并且必须与 app/pubspec.yaml 的
-# version 一致；发新版时三处一起改。签名沿用 app/android 的配置（release 用 debug key），
-# 所以要在同一台机器上构建，否则旧版无法覆盖升级。
+# 文件名和版本以 web/src/downloads.ts 为准（官网按钮直接指向它；download/ 里只保留这一个 APK），
+# 并且必须与 app/pubspec.yaml 的 version 一致；发新版时三处一起改。签名沿用 app/android 的配置
+# （release 用 debug key），所以要在同一台机器上构建，否则旧版无法覆盖升级。
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -70,4 +70,8 @@ if [[ $code != 200 || $length != "$SIZE" ]]; then
   echo "线上校验失败（期望 200 / $SIZE bytes）" >&2
   exit 1
 fi
+# 官网只链接当前这一个 APK：新包校验通过后，再删掉 download/ 里其余的旧 APK。
+ssh -o BatchMode=yes -o ConnectTimeout=8 "$HOST" \
+  "find '$WEB_ROOT/web/download' -maxdepth 1 -type f -name '*.apk' ! -name '$APK_NAME' -print -delete" |
+  sed 's/^/  removed old apk: /'
 echo "apk published"

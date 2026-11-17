@@ -1,5 +1,5 @@
 #!/bin/sh
-# MiniTV CLI installer.
+# AsiaTV CLI installer.
 #
 #   curl -fsSL https://sanaoman.asia/cli/install.sh | sh
 #   curl -fsSL https://sanaoman.asia/cli/install.sh | MINITV_API_KEY='mk_live_...' sh

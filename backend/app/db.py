@@ -1,4 +1,4 @@
-"""Database engine and declarative base for MiniTV."""
+"""Database engine and declarative base for AsiaTV."""
 
 from __future__ import annotations
 

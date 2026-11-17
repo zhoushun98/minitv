@@ -322,7 +322,7 @@ def demo_emails(count: int = DEFAULT_COUNT) -> list[str]:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Seed mock MiniTV users into the local database.")
+    parser = argparse.ArgumentParser(description="Seed mock AsiaTV users into the local database.")
     parser.add_argument("--count", type=int, default=DEFAULT_COUNT, help=f"how many users to seed (default {DEFAULT_COUNT})")
     parser.add_argument("--reset", action="store_true", help="delete previously seeded demo users first")
     args = parser.parse_args()

@@ -69,7 +69,7 @@ export default function PreviewPage() {
           <h1>Watch free episodes online</h1>
           <p className="section-sub preview-lede">
             The first {data?.limit ?? 7} shows in every category stream free right here in your browser.
-            Paid episodes and the full library unlock in the MiniTV app.
+            Paid episodes and the full library unlock in the AsiaTV app.
           </p>
           <ul className="preview-notes">
             <li>
@@ -172,7 +172,7 @@ export default function PreviewPage() {
                 </p>
                 <div className="store-buttons">
                   <a className="btn btn-primary" href="#download">
-                    Get the MiniTV app
+                    Get the AsiaTV app
                   </a>
                   <a className="btn btn-ghost" href="#premium">
                     See plans

@@ -35,7 +35,7 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_CATEGORIES = ["sexual", "violence", "hate", "harassment", "spam", "privacy", "illegal"]
 
-DEFAULT_SYSTEM_PROMPT = """You are the comment moderator for MiniTV, a short-drama streaming app.
+DEFAULT_SYSTEM_PROMPT = """You are the comment moderator for AsiaTV, a short-drama streaming app.
 Classify the user comment and return JSON only:
 {"verdict": "allow" | "review" | "block", "score": 0.0-1.0, "reason": "at most 20 words"}
 

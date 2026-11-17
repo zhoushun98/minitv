@@ -225,7 +225,7 @@ class _DetailScreenState extends State<DetailScreen> {
   }
 
   void _share() {
-    final title = drama['title'] as String? ?? 'MiniTV';
+    final title = drama['title'] as String? ?? 'AsiaTV';
     SharePlus.instance.share(ShareParams(text: '$title\n$shareBaseUrl', subject: title));
   }
 

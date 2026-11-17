@@ -314,7 +314,7 @@ export default function WatchPage({ dramaId }: { dramaId: number }) {
           <div className="empty-state watch-empty">
             <p>{error}</p>
             <p>
-              Paid shows and locked episodes live in the MiniTV app.{" "}
+              Paid shows and locked episodes live in the AsiaTV app.{" "}
               <a className="text-link" href="#download">
                 Download the app →
               </a>
@@ -453,7 +453,7 @@ export default function WatchPage({ dramaId }: { dramaId: number }) {
                     <LockGlyph />
                   </span>
                   <h3>Episode {selected.episode_number} is locked</h3>
-                  <p>Unlock every episode and watch the full series in the MiniTV app.</p>
+                  <p>Unlock every episode and watch the full series in the AsiaTV app.</p>
                   <div className="watch-overlay-actions">
                     <a className="btn btn-primary" href="#download">
                       Download the app
@@ -539,7 +539,7 @@ export default function WatchPage({ dramaId }: { dramaId: number }) {
                   title={
                     episode.free
                       ? `Play episode ${episode.episode_number} free`
-                      : "Locked — unlock in the MiniTV app"
+                      : "Locked — unlock in the AsiaTV app"
                   }
                 >
                   {episode.episode_number}
@@ -558,7 +558,7 @@ export default function WatchPage({ dramaId }: { dramaId: number }) {
                     {lastFree > 0
                       ? `Episodes 1–${lastFree} are free here. `
                       : ""}
-                    Paid episodes unlock with coins or a membership in the MiniTV app
+                    Paid episodes unlock with coins or a membership in the AsiaTV app
                     {appOnlyEpisodes > 0 ? ` — ${appOnlyEpisodes} more ${appOnlyEpisodes === 1 ? "episode is" : "episodes are"} app-only` : ""}.
                   </p>
                 </>

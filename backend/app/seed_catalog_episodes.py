@@ -132,7 +132,7 @@ def seed_drama_episodes(
     )
     created = 0
     for item in catalog_episodes:
-        # The source catalog is zero-based; MiniTV admin/client numbering is
+        # The source catalog is zero-based; AsiaTV admin/client numbering is
         # one-based (Episode 1 == catalog episode_number 0).
         number = int(item["episode_number"]) + 1
         if number in existing:

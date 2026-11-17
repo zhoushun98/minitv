@@ -215,7 +215,7 @@ class _FeedSlotState extends State<_FeedSlot> {
   }
 
   void _share() {
-    final title = drama['title'] as String? ?? 'MiniTV';
+    final title = drama['title'] as String? ?? 'AsiaTV';
     SharePlus.instance.share(ShareParams(text: '$title\nhttps://h5.sanaoman.asia', subject: title));
   }
 
@@ -496,7 +496,7 @@ class _AvatarBadge extends StatelessWidget {
                   ? null
                   : const Center(
                       child: Text(
-                        'M',
+                        'A',
                         style: TextStyle(color: red, fontSize: 20, fontWeight: FontWeight.w900),
                       ),
                     ),

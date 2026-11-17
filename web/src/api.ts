@@ -1,4 +1,4 @@
-/** Typed fetchers for the public MiniTV API. */
+/** Typed fetchers for the public AsiaTV API. */
 
 export type Drama = { id: number; title: string; cover_url: string; play_count: number };
 
@@ -81,7 +81,7 @@ export type PlaybackAuth = {
  *
  * The marketing site is a static site with no /v1 reverse proxy: a production
  * build that somehow lacks the env var would request /v1/... on its own domain,
- * get a 404 and render "Could not load MiniTV". Fall back to the public API host
+ * get a 404 and render "Could not load AsiaTV". Fall back to the public API host
  * instead of shipping a dead page.
  */
 export const API_BASE = (

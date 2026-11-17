@@ -763,7 +763,7 @@ export default function Rewards() {
                     金币与任务奖励配置
                   </Typography.Title>
                   <Tag color="red" bordered={false} style={{ fontWeight: 600 }}>
-                    MiniTV 激励体系
+                    AsiaTV 激励体系
                   </Tag>
                 </Space>
                 <Typography.Text type="secondary" style={{ fontSize: 13 }}>

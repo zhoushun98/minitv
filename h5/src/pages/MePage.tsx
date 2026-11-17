@@ -52,7 +52,7 @@ function localDay(): string {
 }
 
 function initialOf(value: string): string {
-  return (value.trim().slice(0, 1) || "M").toUpperCase();
+  return (value.trim().slice(0, 1) || "A").toUpperCase();
 }
 
 export function MePage({
@@ -235,7 +235,7 @@ export function MePage({
             {!guest && user?.avatar_url ? (
               <img src={thumb(user.avatar_url, IMG.avatar)} alt="" />
             ) : (
-              initialOf(guest ? "M" : name)
+              initialOf(guest ? "A" : name)
             )}
           </span>
         </div>
@@ -986,7 +986,7 @@ function SettingsSheet({
         <div className="me-set-list">
           <div className="me-set-item">
             <span className="me-set-label">{t(locale, "me_set_version")}</span>
-            <span className="me-set-value">MiniTV · H5</span>
+            <span className="me-set-value">AsiaTV · H5</span>
           </div>
         </div>
       </section>

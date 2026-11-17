@@ -177,7 +177,7 @@ export default function PartnerDramas() {
           }}
         />
         <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-          只显示你名下的剧集；提交审核后由 MiniTV 运营安排上架。
+          只显示你名下的剧集；提交审核后由 AsiaTV 运营安排上架。
         </Typography.Text>
       </Space>
 

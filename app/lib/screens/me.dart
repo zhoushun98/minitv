@@ -211,7 +211,7 @@ class _MeScreenState extends State<MeScreen> {
       children: [
         UserAvatar(
           url: guest ? null : user['avatar_url'] as String?,
-          name: guest ? 'M' : name,
+          name: guest ? 'A' : name,
           size: 56,
           radius: 14,
         ),
@@ -1023,7 +1023,7 @@ class _SettingsSheet extends StatelessWidget {
                 child: Text(copy.t('sign_out'), style: const TextStyle(color: Colors.white70)),
               ),
             const SizedBox(height: 12),
-            Text('MiniTV · App', style: const TextStyle(color: Colors.white24, fontSize: 11)),
+            Text('AsiaTV · App', style: const TextStyle(color: Colors.white24, fontSize: 11)),
           ],
         ),
       ),

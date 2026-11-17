@@ -1,4 +1,4 @@
-"""Module package for the MiniTV backend.
+"""Module package for the AsiaTV backend.
 
 Importing this package registers every ORM model on the shared declarative
 base so Alembic autogenerate and create_all see the full metadata.

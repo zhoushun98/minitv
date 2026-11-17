@@ -1,4 +1,4 @@
-"""Local health app for the MiniTV test environment."""
+"""Local health app for the AsiaTV test environment."""
 
 from __future__ import annotations
 
@@ -29,7 +29,7 @@ def load_env() -> None:
 
 
 load_env()
-app = FastAPI(title="MiniTV Local", version="0.0.0")
+app = FastAPI(title="AsiaTV Local", version="0.0.0")
 
 _DEFAULT_ORIGINS = [
     "http://localhost:5173",

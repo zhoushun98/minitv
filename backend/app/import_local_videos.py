@@ -1,4 +1,4 @@
-"""Attach downloaded lite.tv MP4 files to MiniTV episodes via Bunny Stream.
+"""Attach downloaded lite.tv MP4 files to AsiaTV episodes via Bunny Stream.
 
 This is the bridge between the local video archive
 (``data/litetv-videos-real/<media_id>/``) and the database-backed episode

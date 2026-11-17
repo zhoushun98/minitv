@@ -1,7 +1,7 @@
 /**
  * Web free-preview acceptance (试播入口验收) — run with `npm run accept:preview`.
  *
- * Drives the local MiniTV website with headless Chrome and checks:
+ * Drives the local AsiaTV website with headless Chrome and checks:
  *   - homepage entry points (nav + hero + teaser section)
  *   - preview catalog: per-category cap of 7, "View all in the app" links
  *   - free episode playback via /v1/playback + hls.js

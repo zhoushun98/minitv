@@ -274,7 +274,7 @@ class _BannerCarouselState extends State<BannerCarousel> {
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                                 decoration: BoxDecoration(color: red, borderRadius: BorderRadius.circular(4)),
-                                child: const Text('MiniTV 独播', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w700)),
+                                child: const Text('AsiaTV 独播', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w700)),
                               ),
                               if (((b['kicker'] as String?) ?? '').isNotEmpty) ...[
                                 const SizedBox(height: 8),

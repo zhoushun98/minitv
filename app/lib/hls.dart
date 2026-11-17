@@ -79,7 +79,7 @@ Future<List<HlsVariant>> loadHlsVariants(String masterUrl) async {
   final client = HttpClient();
   try {
     final request = await client.getUrl(Uri.parse(masterUrl));
-    request.headers.set(HttpHeaders.userAgentHeader, 'MiniTV/1.0 (iOS)');
+    request.headers.set(HttpHeaders.userAgentHeader, 'AsiaTV/1.0 (iOS)');
     final response = await request.close();
     if (response.statusCode != 200) return const [];
     final text = await response.transform(utf8.decoder).join();

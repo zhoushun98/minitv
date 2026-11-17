@@ -192,7 +192,7 @@ export default function PartnerDramaEdit() {
     }
     Modal.confirm({
       title: "提交审核",
-      content: "提交后不可修改，需等 MiniTV 运营审核。确认提交？",
+      content: "提交后不可修改，需等 AsiaTV 运营审核。确认提交？",
       okText: "提交",
       onOk: async () => {
         setSubmitting(true);

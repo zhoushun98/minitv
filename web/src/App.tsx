@@ -60,7 +60,7 @@ function FeatureGlyph({ name }: { name: FeatureIcon }) {
 
 const faqs = [
   {
-    q: "Is MiniTV free?",
+    q: "Is AsiaTV free?",
     a: "Yes. Many episodes are free to watch. Locked episodes unlock with coins or a membership.",
   },
   {
@@ -113,7 +113,7 @@ function HomePage() {
     setError("");
     fetchMarketing()
       .then(setData)
-      .catch(() => setError("Could not load MiniTV. Check the local API and retry."));
+      .catch(() => setError("Could not load AsiaTV. Check the local API and retry."));
   };
 
   useEffect(() => {
@@ -148,7 +148,7 @@ function HomePage() {
             </h1>
             <p className="lede">
               Free episodes play right here on the web. Unlock the rest — and the whole
-              library — in the MiniTV app.
+              library — in the AsiaTV app.
             </p>
             <div className="hero-actions">
               <a className="btn btn-primary" href="#preview">
@@ -181,7 +181,7 @@ function HomePage() {
           </div>
           <div className="hero-art">
             <div className="phone">
-              <img src="/ph_feed.png" alt="A MiniTV drama playing in the mobile app" />
+              <img src="/ph_feed.png" alt="A AsiaTV drama playing in the mobile app" />
             </div>
             {rating && <div className="chip chip-top">★ {rating.value} rating</div>}
             {downloads && <div className="chip chip-bottom">{downloads.value} downloads</div>}
@@ -221,7 +221,7 @@ function HomePage() {
         <div className="shell">
           <div className="section-head">
             <div>
-              <span className="eyebrow">Why MiniTV</span>
+              <span className="eyebrow">Why AsiaTV</span>
               <h2>Built for the way you watch</h2>
               <p className="section-sub">
                 Short, vertical, and always one swipe from the next episode.
@@ -290,7 +290,7 @@ function HomePage() {
                 <h2>Watch free episodes online</h2>
                 <p className="section-sub">
                   The first episodes of our shows stream free in your browser — no app
-                  needed. Paid episodes unlock in the MiniTV app.
+                  needed. Paid episodes unlock in the AsiaTV app.
                 </p>
               </div>
               <a className="text-link" href="#preview">
@@ -417,7 +417,7 @@ function HomePage() {
           <div className="download-card">
             <div className="download-copy">
               <span className="eyebrow">Download</span>
-              <h2>Get MiniTV on your phone</h2>
+              <h2>Get AsiaTV on your phone</h2>
               <p>
                 Install the app to unlock every episode, download shows, and manage your
                 subscription. The Android build is ready — install the APK below. iOS is
@@ -428,7 +428,7 @@ function HomePage() {
                 <a
                   className="store-btn store-btn-apk"
                   href={ANDROID_APK.url}
-                  download={`MiniTV-${ANDROID_APK.version}.apk`}
+                  download={`AsiaTV-${ANDROID_APK.version}.apk`}
                 >
                   <svg className="icon-stroke" viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M12 3.6v10.4" />
@@ -507,7 +507,7 @@ function HomePage() {
             </div>
             <div className="qr-block">
               <div className="qr-tile">
-                <img src="/qr-web.png" alt="QR code to watch MiniTV in your browser" />
+                <img src="/qr-web.png" alt="QR code to watch AsiaTV in your browser" />
               </div>
               <p className="qr-caption">Scan to watch on the web</p>
             </div>

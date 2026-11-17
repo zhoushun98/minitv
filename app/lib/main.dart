@@ -150,7 +150,7 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
           : AppBar(
               backgroundColor: bg,
               foregroundColor: Colors.white,
-              title: Text(tab == 0 ? 'MiniTV' : copy.t(['nav.home', 'nav.foryou', 'nav.rewards', 'nav.me'][tab])),
+              title: Text(tab == 0 ? 'AsiaTV' : copy.t(['nav.home', 'nav.foryou', 'nav.rewards', 'nav.me'][tab])),
               actions: [
                 TextButton(
                   onPressed: () => widget.onLanguage(widget.language == 'zh' ? 'en' : 'zh'),

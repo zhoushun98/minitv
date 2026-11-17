@@ -147,11 +147,11 @@ def _notify(db: Session, drama: Drama, decision: str, note: str) -> None:
     body = f"《{drama.title}》{verdict}。"
     if note:
         body += f"\n\n运营备注：{note}"
-    body += "\n\n登录 MiniTV 合作方后台查看详情。"
+    body += "\n\n登录 AsiaTV 合作方后台查看详情。"
     try:
         mail.send_email(
             to=supplier.contact_email,
-            subject=f"MiniTV 审核结果：{drama.title} {verdict}",
+            subject=f"AsiaTV 审核结果：{drama.title} {verdict}",
             text=body,
         )
     except mail.MailError as exc:

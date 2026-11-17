@@ -104,7 +104,7 @@ class UserAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final src = imgUrl(url, Img.avatar);
-    final initial = (name.trim().isEmpty ? 'M' : name.trim().substring(0, 1)).toUpperCase();
+    final initial = (name.trim().isEmpty ? 'A' : name.trim().substring(0, 1)).toUpperCase();
     return Container(
       width: size,
       height: size,

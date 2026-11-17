@@ -65,7 +65,7 @@ RESEND_API_KEY=re_xxx RESEND_FROM='MiniTV <noreply@sanaoman.asia>' \
 python3 scripts/release.py run --target lax-apk --note "APK 1.0.0" -- ./scripts/publish_apk_lax.sh
 ```
 
-- 在本地用 Flutter 构建 arm64 release 包，`--dart-define=API_BASE=https://api.sanaoman.asia`；构建完会自检 `libapp.so` 里确实有这个 API 地址，然后上传到 `/download/`，并核对线上的状态码和文件大小。
+- 在本地用 Flutter 构建 arm64 release 包，`--dart-define=API_BASE=https://api.sanaoman.asia`；构建完会自检 `libapp.so` 里确实有这个 API 地址，然后上传到 `/download/`，并核对线上的状态码和文件大小；校验通过后删除 `/download/` 里其余的旧 APK（官网只链接当前这一个）。
 - 文件名和版本以 `web/src/downloads.ts` 为准，而且必须与 `app/pubspec.yaml` 的 `version` 一致。发新版时 downloads.ts（url / version / size）和 pubspec 一起改，然后先跑 `deploy_lax.sh` 更新官网按钮，再跑本脚本。
 - 签名沿用 `app/android` 的配置（release 用本机 `~/.android/debug.keystore`）。必须在同一台机器上构建，否则用户装了旧版就无法覆盖升级。
 - 依赖：Flutter ≥ 3.47（`brew install --cask flutter`）、JDK 17、Android SDK（默认 `/opt/homebrew/share/android-commandlinetools`）。

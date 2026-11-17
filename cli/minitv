@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""minitv - MiniTV 剧集管理命令行。
+"""minitv - AsiaTV 剧集管理命令行。
 
 单文件、零第三方依赖（Python >= 3.8）。设计见 docs/cli-execution-plan.md：
 - help 由 SPEC 同源生成，`--help` / `help --json` / `guide` 三处永远一致；
@@ -2054,7 +2054,7 @@ def _find(group_name, cmd_name=None):
 
 def render_top_help():
     lines = [
-        f"minitv {VERSION} — MiniTV 剧集管理 CLI",
+        f"minitv {VERSION} — AsiaTV 剧集管理 CLI",
         "",
         "开始",
         "  config set-key          配置 API Key（首次）",
@@ -2248,7 +2248,7 @@ def catalog():
 
 def render_guide():
     lines = [
-        f"# minitv {VERSION} — MiniTV 剧集管理 CLI",
+        f"# minitv {VERSION} — AsiaTV 剧集管理 CLI",
         "",
         "单文件、零依赖（Python >= 3.8）。TTY 输出表格，非 TTY 输出 JSON。",
         "",

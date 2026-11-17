@@ -6,7 +6,7 @@
  * warm CDN edge; bump all three fields together when a new build ships.
  */
 export const ANDROID_APK = {
-  url: "/download/minitv-1.0.0-arm64-v8a.apk",
+  url: "/download/asiatv-1.0.0-arm64-v8a.apk",
   version: "1.0.0",
   size: "20 MB",
 };

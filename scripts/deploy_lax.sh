@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# MiniTV 全栈部署（幂等）：API + 官网 + H5 + 管理后台全部跑在同一台服务器上。
+# AsiaTV 全栈部署（幂等）：API + 官网 + H5 + 管理后台全部跑在同一台服务器上。
 # Cloudflare 只做 DNS 解析（灰云），HTTPS 证书由服务器上的 Let's Encrypt 签发。
 #
 # 只允许经发布脚本调用：
@@ -112,7 +112,7 @@ def key() -> str:
     return secrets.token_urlsafe(32)
 
 
-text = f"""# MiniTV 生产环境变量（{d}）。在服务器上生成，不从本机复制。
+text = f"""# AsiaTV 生产环境变量（{d}）。在服务器上生成，不从本机复制。
 APP_ENV=production
 API_HOST=127.0.0.1
 API_PORT={port}
@@ -223,7 +223,7 @@ python3 -m venv "$REMOTE_DIR/.venv"
 # 4.4 systemd
 cat > /etc/systemd/system/minitv-api.service << UNIT
 [Unit]
-Description=MiniTV API
+Description=AsiaTV API
 After=network.target postgresql.service redis-server.service
 Wants=postgresql.service redis-server.service
 

@@ -537,7 +537,7 @@ def _comment_user(user: User | None) -> dict:
         return {"public_id": "", "display_name": "Deleted user", "avatar_url": ""}
     return {
         "public_id": user.public_id or "",
-        "display_name": user.display_name or "MiniTV user",
+        "display_name": user.display_name or "AsiaTV user",
         "avatar_url": user.avatar_url or "",
     }
 
