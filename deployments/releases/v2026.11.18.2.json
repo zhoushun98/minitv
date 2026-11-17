@@ -1,0 +1,23 @@
+{
+  "version": "v2026.11.18.2",
+  "target": "lax-env",
+  "status": "published",
+  "sha": "e96431d16b31d18d216b990102bf7c579e8ee3d6",
+  "short_sha": "e96431d1",
+  "command": [
+    "./scripts/lax_env.sh",
+    "BUNNY_MODE"
+  ],
+  "exit_code": 0,
+  "started_at": "2026-11-18T00:22:55+08:00",
+  "finished_at": "2026-11-18T00:23:00+08:00",
+  "operator": {
+    "user": "jason",
+    "host": "Jason.local",
+    "pid": 56687,
+    "agent_session": null,
+    "cwd": "/Users/jason/dev/minitv"
+  },
+  "note": "视频切换为本机自建（BUNNY_MODE=local）",
+  "dirty": false
+}
