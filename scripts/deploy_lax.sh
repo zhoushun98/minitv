@@ -79,6 +79,12 @@ REMOTE
 
 # ---------------------------------------------------------------- 3. 同步代码与静态产物
 echo "→ sync backend + static sites to $HOST"
+# 只有后端代码真的变了才重启 API / worker：重启会打断正在进行的视频上传。
+backend_digest() {
+  remote "cd '$REMOTE_DIR' 2> /dev/null && find backend -type f ! -path '*/__pycache__/*' ! -path '*/.pytest_cache/*' -print0 \
+    | sort -z | xargs -0 -r sha256sum | sha256sum | cut -c1-16 || echo none"
+}
+BACKEND_BEFORE=$(backend_digest)
 rsync -az --delete -e "$RSYNC_SSH" \
   --exclude '.env' \
   --exclude '.venv/' \
@@ -86,6 +92,8 @@ rsync -az --delete -e "$RSYNC_SSH" \
   --exclude '.pytest_cache/' \
   --exclude '*.pyc' \
   "$ROOT/backend/" "$HOST:$REMOTE_DIR/backend/"
+BACKEND_CHANGED=0
+[[ $BACKEND_BEFORE == "$(backend_digest)" ]] || BACKEND_CHANGED=1
 # download/（手工放的 APK）和 cli/（下面单独同步）不属于 web 构建产物，排除后 --delete 不会删掉它们。
 rsync -az --delete -e "$RSYNC_SSH" --exclude 'download/' --exclude 'cli/' "$ROOT/web/dist/" "$HOST:$WEB_ROOT/web/"
 # 后台「API Key」页给出的安装命令是 curl https://$DOMAIN/cli/install.sh | sh。
@@ -98,8 +106,10 @@ rsync -az -e "$RSYNC_SSH" "$ROOT/web/node_modules/hls.js/dist/hls.min.js" "$HOST
 
 # ---------------------------------------------------------------- 4. 服务器配置并启动
 echo "→ configure runtime on $HOST"
-remote "$REMOTE_ENV bash -s" << 'REMOTE'
+remote "$REMOTE_ENV BACKEND_CHANGED='$BACKEND_CHANGED' bash -s" << 'REMOTE'
 set -euo pipefail
+# 后端代码、.env 或 systemd 单元有变化时才重启 API / worker（见 4.4）。
+restart_needed=$BACKEND_CHANGED
 chmod -R a+rX "$WEB_ROOT" "$MEDIA_ROOT/player"
 
 # 4.1 生产 .env：只在不存在时生成，已有的绝不覆盖（里面有数据库口令和签名密钥）。
@@ -184,12 +194,13 @@ path.write_text(text)
 path.chmod(0o600)
 print(f"installed new production env at {path}")
 PY
+  restart_needed=1
 else
   echo "keeping existing production env"
 fi
 
 # 4.1b 本机媒体（BUNNY_MODE=local）需要的键：缺哪个补哪个，已有的不动。
-python3 - "$REMOTE_DIR/.env" << 'PY'
+added_keys=$(python3 - "$REMOTE_DIR/.env" << 'PY'
 import os
 import secrets
 import sys
@@ -213,6 +224,11 @@ if missing:
     path.write_text("\n".join(lines) + "\n")
     print("added media keys:", ", ".join(missing))
 PY
+)
+if [[ -n $added_keys ]]; then
+  echo "$added_keys"
+  restart_needed=1
+fi
 set -a
 # shellcheck disable=SC1091
 source "$REMOTE_DIR/.env"
@@ -237,6 +253,7 @@ SQL
 runuser -u postgres -- psql -d minitv -v ON_ERROR_STOP=1 -q -c "GRANT ALL ON SCHEMA public TO minitv;"
 
 REDIS_CONF=/etc/redis/redis.conf
+redis_before=$(sha256sum < "$REDIS_CONF")
 if grep -q '^requirepass ' "$REDIS_CONF"; then
   sed -i "s/^requirepass .*/requirepass ${REDIS_PASSWORD}/" "$REDIS_CONF"
 else
@@ -244,7 +261,9 @@ else
 fi
 sed -i 's/^bind .*/bind 127.0.0.1 -::1/' "$REDIS_CONF"
 systemctl enable redis-server
-systemctl restart redis-server
+if [[ $redis_before != "$(sha256sum < "$REDIS_CONF")" ]] || ! systemctl is-active --quiet redis-server; then
+  systemctl restart redis-server
+fi
 
 # 4.3 Python 运行时、迁移、首个后台账号
 python3 -m venv "$REMOTE_DIR/.venv"
@@ -256,8 +275,20 @@ python3 -m venv "$REMOTE_DIR/.venv"
   ../.venv/bin/python -m app.seed_admin
 )
 
-# 4.4 systemd
-cat > /etc/systemd/system/minitv-api.service << UNIT
+# 4.4 systemd：单元内容有变化才替换（并要求重启）。
+write_unit() {
+  local target=$1 tmp
+  tmp=$(mktemp)
+  cat > "$tmp"
+  if cmp -s "$tmp" "$target"; then
+    rm -f "$tmp"
+  else
+    install -m 644 "$tmp" "$target"
+    rm -f "$tmp"
+    restart_needed=1
+  fi
+}
+write_unit /etc/systemd/system/minitv-api.service << UNIT
 [Unit]
 Description=AsiaTV API
 After=network.target postgresql.service redis-server.service
@@ -275,7 +306,7 @@ RestartSec=2
 [Install]
 WantedBy=multi-user.target
 UNIT
-cat > /etc/systemd/system/minitv-media.service << UNIT
+write_unit /etc/systemd/system/minitv-media.service << UNIT
 [Unit]
 Description=AsiaTV media transcoder (BUNNY_MODE=local)
 After=network.target postgresql.service
@@ -299,7 +330,12 @@ WantedBy=multi-user.target
 UNIT
 systemctl daemon-reload
 systemctl enable minitv-api minitv-media
-systemctl restart minitv-api minitv-media
+if [[ $restart_needed == 1 ]] || ! systemctl is-active --quiet minitv-api || ! systemctl is-active --quiet minitv-media; then
+  systemctl restart minitv-api minitv-media
+  echo "API / media worker restarted"
+else
+  echo "backend, .env and units unchanged: API / media worker keep running (in-flight uploads are not interrupted)"
+fi
 
 # 4.5 Nginx：先上 80 端口（ACME 验证 + 跳转 https），拿到证书后再写 443。
 # 本机内核禁用了 IPv6，DNS 也没有 AAAA 记录，所以只监听 IPv4。
@@ -404,6 +440,9 @@ server {
     # 视频直传（TUS）：允许大文件，边收边转给 API，不在 Nginx 里缓冲落盘。
     location /v1/media/tus {
         client_max_body_size 4200m;
+        # 不缓冲转发时，HTTP/2 每路的流控窗口 = 这个缓冲区。默认 16k 在 140ms 往返下每路只有
+        # 约 0.11 MB/s（实测）；8m 足够让速度只受客户端上行带宽限制。
+        client_body_buffer_size 8m;
         proxy_request_buffering off;
         proxy_buffering off;
         proxy_http_version 1.1;
