@@ -1,0 +1,22 @@
+{
+  "version": "v2026.11.18.1",
+  "target": "lax",
+  "status": "published",
+  "sha": "35392a369f53571cb739bf50517d65b753b96c5a",
+  "short_sha": "35392a36",
+  "command": [
+    "./scripts/deploy_lax.sh"
+  ],
+  "exit_code": 0,
+  "started_at": "2026-11-18T00:21:32+08:00",
+  "finished_at": "2026-11-18T00:22:48+08:00",
+  "operator": {
+    "user": "jason",
+    "host": "Jason.local",
+    "pid": 56165,
+    "agent_session": null,
+    "cwd": "/Users/jason/dev/minitv"
+  },
+  "note": "本机自建媒体：TUS 直传 + ffmpeg 转码 + secure_link 分发",
+  "dirty": false
+}
