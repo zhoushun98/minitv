@@ -1,0 +1,22 @@
+{
+  "version": "v2026.11.17.5",
+  "target": "lax",
+  "status": "published",
+  "sha": "e4b26f4e54f2113e5cf05cf1d711fbc47f717fbc",
+  "short_sha": "e4b26f4e",
+  "command": [
+    "./scripts/deploy_lax.sh"
+  ],
+  "exit_code": 0,
+  "started_at": "2026-11-17T23:32:45+08:00",
+  "finished_at": "2026-11-17T23:33:16+08:00",
+  "operator": {
+    "user": "jason",
+    "host": "Jason.local",
+    "pid": 36967,
+    "agent_session": null,
+    "cwd": "/Users/jason/dev/minitv"
+  },
+  "note": "APK 正确的 MIME 类型；重复部署幂等性验证",
+  "dirty": false
+}
