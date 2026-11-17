@@ -1,0 +1,22 @@
+{
+  "version": "v2026.11.17.8",
+  "target": "lax",
+  "status": "published",
+  "sha": "ed089d4573a8726618f4865fa255fc8cf0503c7b",
+  "short_sha": "ed089d45",
+  "command": [
+    "./scripts/deploy_lax.sh"
+  ],
+  "exit_code": 0,
+  "started_at": "2026-11-17T23:42:27+08:00",
+  "finished_at": "2026-11-17T23:42:58+08:00",
+  "operator": {
+    "user": "jason",
+    "host": "Jason.local",
+    "pid": 42476,
+    "agent_session": null,
+    "cwd": "/Users/jason/dev/minitv"
+  },
+  "note": "API 文档标题 AsiaTV API",
+  "dirty": false
+}
