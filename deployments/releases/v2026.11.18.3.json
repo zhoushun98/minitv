@@ -1,0 +1,22 @@
+{
+  "version": "v2026.11.18.3",
+  "target": "lax",
+  "status": "published",
+  "sha": "aed49804d3da049a323258e143d2d1d697f24f5e",
+  "short_sha": "aed49804",
+  "command": [
+    "./scripts/deploy_lax.sh"
+  ],
+  "exit_code": 0,
+  "started_at": "2026-11-18T00:45:21+08:00",
+  "finished_at": "2026-11-18T00:45:58+08:00",
+  "operator": {
+    "user": "jason",
+    "host": "Jason.local",
+    "pid": 65147,
+    "agent_session": null,
+    "cwd": "/Users/jason/dev/minitv"
+  },
+  "note": "视频直传提速（HTTP/2 上传缓冲区 8m），部署不打断上传",
+  "dirty": false
+}
